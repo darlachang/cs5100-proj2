@@ -1,80 +1,182 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="https://unpkg.com/topojson-client@2"></script>
-    <script src="versor.js"></script>
+<meta charset="utf-8">
+<title>Earth globe</title>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
 </head>
-
 <style type="text/css">
-    .countries:hover {
-            fill:red;
-            stroke-width: 10px;
+
+.water {
+  fill: #00248F;
 }
+
+.land {
+  fill: #A98B6F;
+  stroke: #FFF;
+  stroke-width: 0.7px;
+}
+
+.land:hover {
+  fill:#33CC33;
+  stroke-width: 1px;
+}
+
+.focused {
+  fill: #33CC33;
+}
+
+select {
+  position: absolute;
+  top: 20px;
+  left: 580px;
+  border: solid #ccc 1px;
+  padding: 3px;
+  box-shadow: inset 1px 1px 2px #ddd8dc;
+}
+
+.countryTooltip {
+  position: absolute;
+  display: none;
+  pointer-events: none;
+  background: #fff;
+  padding: 5px;
+  text-align: left;
+  border: solid #ccc 1px;
+  color: #666;
+  font-size: 14px;
+  font-family: sans-serif;
+}
+
 </style>
-
 <body>
-    <h1> This is the world </h1>
-        <canvas width="960" height="600"></canvas>
- 
-</body>
+  <script>
 
-<script>
+  var width = 600,
+  height = 500,
+  sens = 0.25,
+  focused;
 
-var canvas = d3.select("canvas"),
-    width = canvas.property("width"),
-    height = canvas.property("height"),
-    context = canvas.node().getContext("2d");
+  //Setting projection
 
-var projection = d3.geoOrthographic()
-    .scale((height - 10) / 2)
-    .translate([width / 2, height / 2])
-    .precision(0.1);
+  var projection = d3.geo.orthographic()
+  .scale(245)
+  .rotate([0, 0])
+  .translate([width / 2, height / 2])
+  .clipAngle(90);
 
-var path = d3.geoPath()
-    .projection(projection)
-    .context(context);
+  var path = d3.geo.path()
+  .projection(projection);
 
-canvas.call(d3.drag()
-    .on("start", dragstarted)
-    .on("drag", dragged));
+  //SVG container
 
-var render = function() {},
-    v0, // Mouse position in Cartesian coordinates at start of drag gesture.
-    r0, // Projection rotation as Euler angles at start.
-    q0; // Projection rotation as versor at start.
+  var svg = d3.select("body").append("svg")
+  .attr("width", width)
+  .attr("height", height);
 
-function dragstarted() {
-  v0 = versor.cartesian(projection.invert(d3.mouse(this)));
-  r0 = projection.rotate();
-  q0 = versor(r0);
-}
+  //Adding water
 
-function dragged() {
-  var v1 = versor.cartesian(projection.rotate(r0).invert(d3.mouse(this))),
-      q1 = versor.multiply(q0, versor.delta(v0, v1)),
-      r1 = versor.rotation(q1);
-  projection.rotate(r1);
-  render();
-}
+  svg.append("path")
+  .datum({type: "Sphere"})
+  .attr("class", "water")
+  .attr("d", path);
 
-d3.json("https://unpkg.com/world-atlas@1/world/110m.json", function(error, world) {
-  if (error) throw error;
+  var countryTooltip = d3.select("body").append("div").attr("class", "countryTooltip"),
+  countryList = d3.select("body").append("select").attr("name", "countries");
 
-  var sphere = {type: "Sphere"},
-      land = topojson.feature(world, world.objects.land),
-      countries = topojson.feature(world, world.objects.countries);
 
-  render = function() {
-    context.clearRect(0, 0, width, height);
-    context.beginPath(), path(sphere), context.fillStyle = "#003366", context.fill();
-    context.beginPath(), path(land), context.fillStyle = "#99CC99", context.fill();
-    context.beginPath(), path(countries), context.strokeStyle = "grey", context.stroke();
-    context.beginPath(), path(sphere), context.stroke();
+  queue()
+  .defer(d3.json, "world-110m.json")
+  .defer(d3.tsv, "world-110m-country-names.tsv")
+  .await(ready);
+
+  //Main function
+
+  function ready(error, world, countryData) {
+
+    var countryById = {},
+    countries = topojson.feature(world, world.objects.countries).features;
+
+    //Adding countries to select
+
+    countryData.forEach(function(d) {
+      countryById[d.id] = d.name;
+      option = countryList.append("option");
+      option.text(d.name);
+      option.property("value", d.id);
+    });
+
+    //Drawing countries on the globe
+
+    var world = svg.selectAll("path.land")
+    .data(countries)
+    .enter().append("path")
+    .attr("class", "land")
+    .attr("d", path)
+
+    //Drag event
+
+    .call(d3.behavior.drag()
+      .origin(function() { var r = projection.rotate(); return {x: r[0] / sens, y: -r[1] / sens}; })
+      .on("drag", function() {
+        var rotate = projection.rotate();
+        projection.rotate([d3.event.x * sens, -d3.event.y * sens, rotate[2]]);
+        svg.selectAll("path.land").attr("d", path);
+        svg.selectAll(".focused").classed("focused", focused = false);
+      }))
+
+    //Mouse events
+
+    .on("mouseover", function(d) {
+      countryTooltip.text(countryById[d.id])
+      .style("left", (d3.event.pageX + 7) + "px")
+      .style("top", (d3.event.pageY - 15) + "px")
+      .style("display", "block")
+      .style("opacity", 1);
+    })
+    .on("mouseout", function(d) {
+      countryTooltip.style("opacity", 0)
+      .style("display", "none");
+    })
+    .on("mousemove", function(d) {
+      countryTooltip.style("left", (d3.event.pageX + 7) + "px")
+      .style("top", (d3.event.pageY - 15) + "px");
+    });
+
+    //Country focus on option select
+
+    d3.select("select").on("change", function() {
+      var rotate = projection.rotate(),
+      focusedCountry = country(countries, this),
+      p = d3.geo.centroid(focusedCountry);
+
+      svg.selectAll(".focused").classed("focused", focused = false);
+
+    //Globe rotating
+
+    (function transition() {
+      d3.transition()
+      .duration(2500)
+      .tween("rotate", function() {
+        var r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
+        return function(t) {
+          projection.rotate(r(t));
+          svg.selectAll("path").attr("d", path)
+          .classed("focused", function(d, i) { return d.id == focusedCountry.id ? focused = d : false; });
+        };
+      })
+      })();
+    });
+
+    function country(cnt, sel) { 
+      for(var i = 0, l = cnt.length; i < l; i++) {
+        if(cnt[i].id == sel.value) {return cnt[i];}
+      }
+    };
+
   };
-
-  render();
-    
-
-});
-
-</script>
+  </script>
+</body>
+</html>
