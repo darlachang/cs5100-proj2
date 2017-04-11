@@ -1,32 +1,24 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<body>
-<script src="//d3js.org/d3.v4.min.js"></script>
-<script src="//d3js.org/topojson.v1.min.js"></script>
+<canvas width="960" height="600"></cavnas>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://unpkg.com/topojson-client@2"></script>
+<script src="versor.js"></script>
 <script>
 
-var width = 960,
-    height = 600;
-
-var radius = height / 2 - 5,
-    scale = radius,
-    velocity = .02;
+var canvas = d3.select("canvas"),
+    width = canvas.property("width"),
+    height = canvas.property("height"),
+    context = canvas.node().getContext("2d");
 
 var projection = d3.geoOrthographic()
+    .scale((height - 10) / 2)
     .translate([width / 2, height / 2])
-    .scale(scale)
-    .clipAngle(90);
-
-var canvas = d3.select("body").append("canvas")
-    .attr("width", width)
-    .attr("height", height);
-
-var context = canvas.node().getContext("2d");
+    .precision(0.1);
 
 var path = d3.geoPath()
     .projection(projection)
     .context(context);
-    
+
 canvas.call(d3.drag()
     .on("start", dragstarted)
     .on("drag", dragged));
@@ -50,12 +42,13 @@ function dragged() {
   render();
 }
 
-d3.json("https://gist.githubusercontent.com/mbostock/4090846/raw/d534aba169207548a8a3d670c9c2cc719ff05c47/world-110m.json", function(error, world) {
+d3.json("https://unpkg.com/world-atlas@1/world/110m.json", function(error, world) {
   if (error) throw error;
 
-  var land = topojson.feature(world, world.objects.land);
-    
-    render = function() {
+  var sphere = {type: "Sphere"},
+      land = topojson.feature(world, world.objects.land);
+
+  render = function() {
     context.clearRect(0, 0, width, height);
     context.beginPath(), path(sphere), context.fillStyle = "#fff", context.fill();
     context.beginPath(), path(land), context.fillStyle = "#000", context.fill();
@@ -63,23 +56,6 @@ d3.json("https://gist.githubusercontent.com/mbostock/4090846/raw/d534aba16920754
   };
 
   render();
-
-  d3.timer(function(elapsed) {
-    context.clearRect(0, 0, width, height);
-
-    projection.rotate([velocity * elapsed, 0]);
-    context.beginPath();
-    path(land);
-    context.fill();
-
-    context.beginPath();
-    context.arc(width / 2, height / 2, radius, 0, 2 * Math.PI, true);
-    context.lineWidth = 2.5;
-    context.stroke();
-  });
-    
 });
-
-d3.select(self.frameElement).style("height", height + "px");
 
 </script>
