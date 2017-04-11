@@ -50,8 +50,8 @@ d3.json("https://unpkg.com/world-atlas@1/world/110m.json", function(error, world
 
   render = function() {
     context.clearRect(0, 0, width, height);
-    context.beginPath(), path(sphere), context.fillStyle = "#fff", context.fill();
-    context.beginPath(), path(land), context.fillStyle = "#000", context.fill();
+    context.beginPath(), path(sphere), context.fillStyle = "#003366", context.fill();
+    context.beginPath(), path(land), context.fillStyle = "#99CC99", context.fill();
     context.beginPath(), path(sphere), context.stroke();
   };
 
