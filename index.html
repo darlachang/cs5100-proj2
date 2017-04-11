@@ -5,6 +5,13 @@
     <script src="versor.js"></script>
 </head>
 
+<style type="text/css">
+    .countries:hover {
+            fill:red;
+            stroke-width: 10px;
+}
+</style>
+
 <body>
     <h1> This is the world </h1>
         <canvas width="960" height="600"></canvas>
@@ -54,12 +61,14 @@ d3.json("https://unpkg.com/world-atlas@1/world/110m.json", function(error, world
   if (error) throw error;
 
   var sphere = {type: "Sphere"},
-      land = topojson.feature(world, world.objects.land);
+      land = topojson.feature(world, world.objects.land),
+      countries = topojson.feature(world, world.objects.countries);
 
   render = function() {
     context.clearRect(0, 0, width, height);
     context.beginPath(), path(sphere), context.fillStyle = "#003366", context.fill();
     context.beginPath(), path(land), context.fillStyle = "#99CC99", context.fill();
+    context.beginPath(), path(countries), context.strokeStyle = "grey", context.stroke();
     context.beginPath(), path(sphere), context.stroke();
   };
 
