@@ -26,6 +26,19 @@ var projection = d3.geoOrthographic()
 var path = d3.geoPath()
     .projection(projection)
     .context(context);
+    
+var countryPaths = canvas.append("g")
+.attr("class", "countryPaths");
+
+var countries = topojson.feature(world, world.objects.countries);
+
+// add individual country paths
+countryPaths.selectAll(".countries")
+.data(countries.features)
+.enter()
+.append("path")
+.attr("class", function(d) {return "country " + d.properties.adm0_a3; } )
+.attr("d", path)
 
 canvas.call(d3.drag()
     .on("start", dragstarted)
