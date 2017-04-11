@@ -10,44 +10,34 @@
 <style type="text/css">
   
 body {
-  background-color: #373737;
-  display: inline block;
+  background-color: #373737
   }
-  
-
-
 .water {
   fill: #F4F4F4;
 }
-
 .land {
   fill: #C0B283;
   stroke: #DCD0C0;
   stroke-width: 0.7px;
 }
-
 .land:hover {
   fill:#993300;
   stroke-width: 1px;
 }
-
 .focused {
   fill: #993300;
 }
-
 select {
-  position: static;
+  position: absolute;
   top: 20px;
   left: 580px;
   border: solid #ccc 1px;
-  padding: 1px;
+  padding: 3px;
   box-shadow: inset 1px 1px 2px #ddd8dc;
 }
-
 .countryTooltip {
-  position: static;
+  position: absolute;
   display: none;
-  margin: auto;
   pointer-events: none;
   background: #fff;
   padding: 5px;
@@ -57,75 +47,54 @@ select {
   font-size: 14px;
   font-family: sans-serif;
 }
-
 </style>
 <body>
   <script>
-
   var width = 600,
   height = 500,
   sens = 0.25,
   focused;
-
   //Setting projection
-
   var projection = d3.geo.orthographic()
   .scale(245)
   .rotate([0, 0])
   .translate([width / 2, height / 2])
   .clipAngle(90);
-
   var path = d3.geo.path()
   .projection(projection);
-
   //SVG container
-
   var svg = d3.select("body").append("svg")
   .attr("width", width)
   .attr("height", height);
-
   //Adding water
-
   svg.append("path")
   .datum({type: "Sphere"})
   .attr("class", "water")
   .attr("d", path);
-
   var countryTooltip = d3.select("body").append("div").attr("class", "countryTooltip"),
   countryList = d3.select("body").append("select").attr("name", "countries");
-
-
   queue()
   .defer(d3.json, "world-110m.json")
   .defer(d3.tsv, "world-110m-country-names.tsv")
   .await(ready);
-
   //Main function
-
   function ready(error, world, countryData) {
-
     var countryById = {},
     countries = topojson.feature(world, world.objects.countries).features;
-
     //Adding countries to select
-
     countryData.forEach(function(d) {
       countryById[d.id] = d.name;
       option = countryList.append("option");
       option.text(d.name);
       option.property("value", d.id);
     });
-
     //Drawing countries on the globe
-
     var world = svg.selectAll("path.land")
     .data(countries)
     .enter().append("path")
     .attr("class", "land")
     .attr("d", path)
-
     //Drag event
-
     .call(d3.behavior.drag()
       .origin(function() { var r = projection.rotate(); return {x: r[0] / sens, y: -r[1] / sens}; })
       .on("drag", function() {
@@ -134,9 +103,7 @@ select {
         svg.selectAll("path.land").attr("d", path);
         svg.selectAll(".focused").classed("focused", focused = false);
       }))
-
     //Mouse events
-
     .on("mouseover", function(d) {
       countryTooltip.text(countryById[d.id])
       .style("left", (d3.event.pageX + 7) + "px")
@@ -152,18 +119,13 @@ select {
       countryTooltip.style("left", (d3.event.pageX + 7) + "px")
       .style("top", (d3.event.pageY - 15) + "px");
     });
-
     //Country focus on option select
-
     d3.select("select").on("change", function() {
       var rotate = projection.rotate(),
       focusedCountry = country(countries, this),
       p = d3.geo.centroid(focusedCountry);
-
       svg.selectAll(".focused").classed("focused", focused = false);
-
     //Globe rotating
-
     (function transition() {
       d3.transition()
       .duration(2500)
@@ -177,13 +139,11 @@ select {
       })
       })();
     });
-
     function country(cnt, sel) { 
       for(var i = 0, l = cnt.length; i < l; i++) {
         if(cnt[i].id == sel.value) {return cnt[i];}
       }
     };
-
   };
   </script>
 </body>
