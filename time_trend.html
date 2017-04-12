@@ -1,0 +1,56 @@
+<html>
+<head>
+  <title>Darla Chang (mc2639)</title>
+  <center><h1> proj 2 </h1></center>
+  <center>time trend</center>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="http://d3js.org/topojson.v2.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+</head>
+<body>
+<p id = "time_trend">
+    <label for="year" 
+             style="display: inline-block; text-align: right">
+             period: <span id="year-value"></span>
+    </label>
+    <input type="range" min="1989" max="2015" id="year" style = "width: 300px; height: 0px">
+</p>
+</body>
+<script>
+    var parseRow = function(row) {
+    	row.year = Number(row.year);
+    	return row;
+    }
+
+    d3.queue()
+      .defer(d3.csv, 'conflictdataset.csv', parseRow)
+      .await(function (error, rawConflict) {
+      	conflictData = rawConflict;
+      	conflictYear = d3.map(rawConflict, function (d){
+          //console.log(Number(d.year));
+      		return d.year;
+      	})
+      	console.log(conflictYear);
+        yearArray = [];
+        rawConflict.forEach(function (d){
+          if(d.year){
+            yearArray.push(d.year);
+          }
+        })
+        console.log(yearArray);
+     });
+
+
+    //when the input range change: update
+    d3.select("#year").on("input", function(){
+        update(+this.value);
+    })
+    //initial value of year
+    update(2016);
+    //update the elements
+    function update(year) {
+    	d3.select("#year-value").text(year);
+    	d3.select("#year").property("value", year);
+    }
+</script>
+</html>
