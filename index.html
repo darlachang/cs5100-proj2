@@ -100,18 +100,53 @@ select {
     .attr("class", "land")
     .attr("d", path)
 
+    //create initial circles of conflict
     conflict.forEach(function(d){
-        svg.append("circle")
-          .attr("cx", projection([d.longitude, d.latitude])[0] )
-          .attr("cy", projection([d.longitude, d.latitude])[1] )
-          .attr("id", "i"+d.id)
-          .attr("stroke", "red")
-          .attr("stroke-width",0.2)
-          .attr("fill", "red")
-          .attr("r", function() {
-            return (countScale(d.high_est)*5); })
-          .attr("fill-opacity","0.5");
-        })
+        // svg.append("circle")
+        //   .attr("cx", projection([d.longitude, d.latitude])[0] )
+        //   .attr("cy", projection([d.longitude, d.latitude])[1] )
+        //   .attr("id", "i"+d.id)
+        //   .attr("stroke", "red")
+        //   .attr("stroke-width",0.2)
+        //   .attr("fill", "red")
+        //   .attr("r", function() {
+        //     return (countScale(d.high_est)*0.01); })
+        //   .attr("fill-opacity","0.5");
+        // })
+
+
+        function ping(){
+
+            svg.append("circle")
+            .attr({
+              "cx": projection([d.longitude, d.latitude])[0],
+              "cy": projection([d.longitude, d.latitude])[1],
+              "stroke": "blue",
+              "stroke-width": 1,
+              "stroke-opacity":1,
+              "fill": "blue",
+              "r": 0,
+
+            })
+            .transition()
+              .duration(3000)
+              .attr({
+              "fill":"none",
+              "r":countScale(d.high_est)*5,
+              "stroke": "yellow",
+              "stroke-width":0,
+              "stroke-opacity":0
+            }); //for attr
+          };
+        setInterval(ping,200);
+
+      }); //for each
+
+
+
+
+
+
 
     //conflict data
 
@@ -127,6 +162,8 @@ select {
 
         svg.selectAll("path.land").attr("d", path);
         svg.selectAll(".focused").classed("focused", focused = false)
+
+
         conflict.forEach(function(d){
             svg.select("#i"+d.id)
               .attr("cx", projection([d.longitude, d.latitude])[0] )
@@ -173,7 +210,18 @@ select {
         return function(t) {
           projection.rotate(r(t));
           svg.selectAll("path").attr("d", path)
-          .classed("focused", function(d, i) { return d.id == focusedCountry.id ? focused = d : false; });
+          .classed("focused", function(d, i) { return d.id == focusedCountry.id ? focused = d : false; })
+          conflict.forEach(function(d){
+              svg.select("#i"+d.id)
+                .attr("cx", projection([d.longitude, d.latitude])[0] )
+                .attr("cy", projection([d.longitude, d.latitude])[1] )
+                .attr("stroke", "red")
+                .attr("stroke-width",0.2)
+                .attr("fill", "red")
+                .attr("r", function() {
+                  return (countScale(d.high_est)*5); })
+                .attr("fill-opacity","0.5");
+              });
         };
       })
       })();
