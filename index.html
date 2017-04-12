@@ -102,44 +102,48 @@ select {
 
     //create initial circles of conflict
     conflict.forEach(function(d){
-        // svg.append("circle")
-        //   .attr("cx", projection([d.longitude, d.latitude])[0] )
-        //   .attr("cy", projection([d.longitude, d.latitude])[1] )
-        //   .attr("id", "i"+d.id)
-        //   .attr("stroke", "red")
-        //   .attr("stroke-width",0.2)
-        //   .attr("fill", "red")
-        //   .attr("r", function() {
-        //     return (countScale(d.high_est)*0.01); })
-        //   .attr("fill-opacity","0.5");
-        // })
+        svg.append("circle")
+          .attr("cx", projection([d.longitude, d.latitude])[0] )
+          .attr("cy", projection([d.longitude, d.latitude])[1] )
+          .attr("id", "i"+d.id)
+          .attr("stroke", "red")
+          .attr("stroke-width",0.2)
+          .attr("fill", "red")
+          .attr("r", function() {
+            if (d.high_est>0){
+                  return (countScale(Math.log(d.high_est))*10)
+                }
+                else {
+                  return 0
+                }
+              })
 
 
-        function ping(){
-
-            svg.append("circle")
-            .attr({
-              "cx": projection([d.longitude, d.latitude])[0],
-              "cy": projection([d.longitude, d.latitude])[1],
-              "stroke": "blue",
-              "stroke-width": 1,
-              "stroke-opacity":1,
-              "fill": "blue",
-              "r": 0,
-
-            })
-            .transition()
-              .duration(3000)
-              .attr({
-              "fill":"none",
-              "r":countScale(d.high_est)*5,
-              "stroke": "yellow",
-              "stroke-width":0,
-              "stroke-opacity":0
-            }); //for attr
-          };
-        setInterval(ping,200);
-
+      //   function ping(){
+      //
+      //       svg.append("circle")
+      //       .attr({
+      //         "cx": projection([d.longitude, d.latitude])[0],
+      //         "cy": projection([d.longitude, d.latitude])[1],
+      //         "stroke": "blue",
+      //         "stroke-width": 1,
+      //         "stroke-opacity":1,
+      //         "fill": "blue",
+      //         "r": 0,
+      //
+      //       })
+      //       .transition()
+      //         .duration(3000)
+      //         .attr({
+      //         "fill":"none",
+      //         "r":countScale(d.high_est)*5,
+      //         "stroke": "yellow",
+      //         "stroke-width":0,
+      //         "stroke-opacity":0
+      //       }); //for attr
+      //     };
+      //   setInterval(ping,200);
+      //
       }); //for each
 
 
@@ -172,7 +176,7 @@ select {
               .attr("stroke-width",0.2)
               .attr("fill", "red")
               .attr("r", function() {
-                return (countScale(d.high_est)*5); })
+                return (countScale(Math.log(d.high_est))*0.1); })
               .attr("fill-opacity","0.5");
             });
       }))
@@ -219,7 +223,7 @@ select {
                 .attr("stroke-width",0.2)
                 .attr("fill", "red")
                 .attr("r", function() {
-                  return (countScale(d.high_est)*5); })
+                  return (countScale(Math.log(d.high_est))*0.1); })
                 .attr("fill-opacity","0.5");
               });
         };
