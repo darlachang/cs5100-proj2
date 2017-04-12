@@ -8,7 +8,7 @@
 <script src="http://d3js.org/queue.v1.min.js"></script>
 </head>
 <style type="text/css">
-  
+
 body {
   background-color: #373737
   }
@@ -62,6 +62,8 @@ select {
   .clipAngle(90);
   var path = d3.geo.path()
   .projection(projection);
+
+  var countScale = d3.scale.sqrt();
   //SVG container
   var svg = d3.select("body").append("svg")
   .attr("width", width)
@@ -76,9 +78,10 @@ select {
   queue()
   .defer(d3.json, "world-110m.json")
   .defer(d3.tsv, "world-110m-country-names.tsv")
+  .defer(d3.csv, "conflicttest.csv")
   .await(ready);
   //Main function
-  function ready(error, world, countryData) {
+  function ready(error, world, countryData, conflict) {
     var countryById = {},
     countries = topojson.feature(world, world.objects.countries).features;
     //Adding countries to select
@@ -88,21 +91,55 @@ select {
       option.text(d.name);
       option.property("value", d.id);
     });
+
+
     //Drawing countries on the globe
     var world = svg.selectAll("path.land")
     .data(countries)
     .enter().append("path")
     .attr("class", "land")
     .attr("d", path)
+
+    conflict.forEach(function(d){
+        svg.append("circle")
+          .attr("cx", projection([d.longitude, d.latitude])[0] )
+          .attr("cy", projection([d.longitude, d.latitude])[1] )
+          .attr("id", "i"+d.id)
+          .attr("stroke", "red")
+          .attr("stroke-width",0.2)
+          .attr("fill", "red")
+          .attr("r", function() {
+            return (countScale(d.high_est)*5); })
+          .attr("fill-opacity","0.5");
+        })
+
+    //conflict data
+
+
+    svg.selectAll("path.land")
+    .data(countries)
     //Drag event
     .call(d3.behavior.drag()
       .origin(function() { var r = projection.rotate(); return {x: r[0] / sens, y: -r[1] / sens}; })
       .on("drag", function() {
         var rotate = projection.rotate();
         projection.rotate([d3.event.x * sens, -d3.event.y * sens, rotate[2]]);
+
         svg.selectAll("path.land").attr("d", path);
-        svg.selectAll(".focused").classed("focused", focused = false);
+        svg.selectAll(".focused").classed("focused", focused = false)
+        conflict.forEach(function(d){
+            svg.select("#i"+d.id)
+              .attr("cx", projection([d.longitude, d.latitude])[0] )
+              .attr("cy", projection([d.longitude, d.latitude])[1] )
+              .attr("stroke", "red")
+              .attr("stroke-width",0.2)
+              .attr("fill", "red")
+              .attr("r", function() {
+                return (countScale(d.high_est)*5); })
+              .attr("fill-opacity","0.5");
+            });
       }))
+
     //Mouse events
     .on("mouseover", function(d) {
       countryTooltip.text(countryById[d.id])
@@ -124,6 +161,7 @@ select {
       var rotate = projection.rotate(),
       focusedCountry = country(countries, this),
       p = d3.geo.centroid(focusedCountry);
+
       svg.selectAll(".focused").classed("focused", focused = false);
     //Globe rotating
     (function transition() {
@@ -131,6 +169,7 @@ select {
       .duration(2500)
       .tween("rotate", function() {
         var r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
+
         return function(t) {
           projection.rotate(r(t));
           svg.selectAll("path").attr("d", path)
@@ -139,11 +178,17 @@ select {
       })
       })();
     });
-    function country(cnt, sel) { 
+    function country(cnt, sel) {
       for(var i = 0, l = cnt.length; i < l; i++) {
         if(cnt[i].id == sel.value) {return cnt[i];}
       }
     };
+
+
+
+
+
+
   };
   </script>
 </body>
