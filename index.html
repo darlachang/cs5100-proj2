@@ -10,22 +10,21 @@
 <style type="text/css">
 
 body {
-  background-color: #373737
+  background-color: #0B132B
   }
 .water {
-  fill: #F4F4F4;
+  fill: #1C2541;
 }
 .land {
-  fill: #C0B283;
-  stroke: #DCD0C0;
-  stroke-width: 0.7px;
+  fill: #3A506B;
+  stroke: #527299;
+  stroke-width: 0.55px;
 }
 .land:hover {
-  fill:#993300;
-  stroke-width: 1px;
+  fill:#87BCDE;
 }
 .focused {
-  fill: #993300;
+  fill: #87BCDE;
 }
 select {
   position: absolute;
@@ -102,48 +101,48 @@ select {
 
     //create initial circles of conflict
     conflict.forEach(function(d){
-        svg.append("circle")
-          .attr("cx", projection([d.longitude, d.latitude])[0] )
-          .attr("cy", projection([d.longitude, d.latitude])[1] )
-          .attr("id", "i"+d.id)
-          .attr("stroke", "red")
-          .attr("stroke-width",0.2)
-          .attr("fill", "red")
-          .attr("r", function() {
-            if (d.high_est>0){
-                  return (countScale(Math.log(d.high_est))*10)
-                }
-                else {
-                  return 0
-                }
-              })
+        // svg.append("circle")
+        //   .attr("cx", projection([d.longitude, d.latitude])[0] )
+        //   .attr("cy", projection([d.longitude, d.latitude])[1] )
+        //   .attr("id", "i"+d.id)
+        //   .attr("stroke", "#EF5653")
+        //   .attr("stroke-width",0.2)
+        //   .attr("fill", "#EF5653")
+        //   .attr("r", function() {
+        //     if (d.high_est>0){
+        //           return (countScale(Math.log(d.high_est))*10)
+        //         }
+        //         else {
+        //           return 0
+        //         }
+        //       })
 
 
-      //   function ping(){
-      //
-      //       svg.append("circle")
-      //       .attr({
-      //         "cx": projection([d.longitude, d.latitude])[0],
-      //         "cy": projection([d.longitude, d.latitude])[1],
-      //         "stroke": "blue",
-      //         "stroke-width": 1,
-      //         "stroke-opacity":1,
-      //         "fill": "blue",
-      //         "r": 0,
-      //
-      //       })
-      //       .transition()
-      //         .duration(3000)
-      //         .attr({
-      //         "fill":"none",
-      //         "r":countScale(d.high_est)*5,
-      //         "stroke": "yellow",
-      //         "stroke-width":0,
-      //         "stroke-opacity":0
-      //       }); //for attr
-      //     };
-      //   setInterval(ping,200);
-      //
+        function ping(){
+
+            svg.append("circle")
+            .attr({
+              "cx": projection([d.longitude, d.latitude])[0],
+              "cy": projection([d.longitude, d.latitude])[1],
+              "stroke": "#EF5653",
+              "stroke-width": 1,
+              "stroke-opacity":1,
+              "fill": "#EF5653",
+              "r": 0,
+
+            })
+            .transition()
+              .duration(3000)
+              .attr({
+              "fill":"none",
+              "r":countScale(d.high_est)*5,
+              "stroke": "#EF5653",
+              "stroke-width":0,
+              "stroke-opacity":0
+            }); //for attr
+          };
+        setInterval(ping,200);
+
       }); //for each
 
 
