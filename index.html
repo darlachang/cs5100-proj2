@@ -73,6 +73,17 @@ select {
   .attr("width", width)
   .attr("height", height);
 
+  var svg2=d3.select("body").append("svg")
+  .attr("id","svg2")
+  .attr("width", width2)
+  .attr("height", height2)
+  .attr("x", "50%")
+  .attr("y", "80%")
+  .attr("text-anchor","middle");
+
+  svg2.append("text")
+  .attr("id","svg2text")
+
   //Adding water
   svg.append("path")
   .datum({type: "Sphere"})
@@ -96,6 +107,7 @@ select {
       option.text(d.name);
       option.property("value", d.id);
     });
+
 
 
     //Drawing countries on the globe
@@ -152,11 +164,6 @@ select {
       }); //for each
 
 
-
-
-
-
-
     //conflict data
 
 
@@ -208,40 +215,21 @@ select {
       focusedCountry = country(countries, this),
       p = d3.geo.centroid(focusedCountry);
 
+      d3.select("#svg2")
+        .style("border", "solid #3A506B 2px");
 
-    
-
-    var svg2= d3.select("body").append("svg")
-      .attr("id", "svg2")
-      .attr("width", width2)
-      .attr("height", height2)
-      .attr("x", "50%")
-      .attr("y", "80%")
-      .attr("text-anchor","middle")
-      .style("border", "solid #3A506B 2px");
-
-
-
-    countryData.filter(function (d){
-        if (d.id===String(focusedCountry.id)){
-          svg2.append("text")
-            .text(d.name)
-            .attr("x", "50%")
-            .attr("y", "50")
-            .style("fill", "#3A506B")
-            .style("font-size", "36pt")
-            .style("font-family","arial");
-          return d.name
-        };
-    });
-
-
-
-
-
-
-
-
+      countryData.filter(function (d){
+          if (d.id===String(focusedCountry.id)){
+            svg2.select("#svg2text")
+              .text(d.name)
+              .attr("x", "50%")
+              .attr("y", "50")
+              .style("fill", "#3A506B")
+              .style("font-size", "36pt")
+              .style("font-family","arial");
+            return d.name
+          };
+      });
 
 
 
