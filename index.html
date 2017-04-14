@@ -53,6 +53,11 @@ select {
   height = 1000,
   sens = 0.25,
   focused;
+
+  var width2=500,
+  height2=500,
+  padding=50;
+
   //Setting projection
   var projection = d3.geo.orthographic()
   .scale(245)
@@ -67,6 +72,7 @@ select {
   var svg = d3.select("body").append("svg")
   .attr("width", width)
   .attr("height", height);
+
   //Adding water
   svg.append("path")
   .datum({type: "Sphere"})
@@ -202,7 +208,44 @@ select {
       focusedCountry = country(countries, this),
       p = d3.geo.centroid(focusedCountry);
 
-      svg.selectAll(".focused").classed("focused", focused = false);
+
+    
+
+    var svg2= d3.select("body").append("svg")
+      .attr("id", "svg2")
+      .attr("width", width2)
+      .attr("height", height2)
+      .attr("x", "50%")
+      .attr("y", "80%")
+      .attr("text-anchor","middle")
+      .style("border", "solid #3A506B 2px");
+
+
+
+    countryData.filter(function (d){
+        if (d.id===String(focusedCountry.id)){
+          svg2.append("text")
+            .text(d.name)
+            .attr("x", "50%")
+            .attr("y", "50")
+            .style("fill", "#3A506B")
+            .style("font-size", "36pt")
+            .style("font-family","arial");
+          return d.name
+        };
+    });
+
+
+
+
+
+
+
+
+
+
+
+    svg.selectAll(".focused").classed("focused", focused = false);
     //Globe rotating
     (function transition() {
       d3.transition()
@@ -214,6 +257,8 @@ select {
           projection.rotate(r(t));
           svg.selectAll("path").attr("d", path)
           .classed("focused", function(d, i) { return d.id == focusedCountry.id ? focused = d : false; })
+
+
           conflict.forEach(function(d){
               svg.select("#i"+d.id)
                 .attr("cx", projection([d.longitude, d.latitude])[0] )
