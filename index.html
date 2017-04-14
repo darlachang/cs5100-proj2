@@ -77,18 +77,9 @@ select {
     .attr("id","svg2")
     .attr("width", width2)
     .attr("height", height2)
-    .attr("x", "20")
+    .attr("x", "800")
     .attr("y", "50")
     .attr("text-anchor","middle")
-
-  // var svg2=d3.select("body").append("svg")
-  // .attr("id","svg2")
-  // .attr("width", width2)
-  // .attr("height", height2)
-  // // .attr("x", "5")
-  // // .attr("y", "5")
-  // .attr("text-anchor","middle");
-
   svg2.append("text")
   .attr("id","svg2text")
 
@@ -225,19 +216,18 @@ select {
     d3.select("#svg2")
       .style("border", "solid #3A506B 2px");
 
+    countryData.filter(function (d){
+        if (d.id===String(focusedCountry.id)){
+          svg2.select("#svg2text")
+            .text(d.name)
+            .attr("x", "50%")
+            .attr("y", "50")
+            .style("fill", "#3A506B")
+            .style("font-size", "36pt")
+            .style("font-family","arial");
 
-      countryData.filter(function (d){
-          if (d.id===String(focusedCountry.id)){
-            svg2.select("#svg2text")
-              .text(d.name)
-              .attr("x", "50%")
-              .attr("y", "50")
-              .style("fill", "#3A506B")
-              .style("font-size", "36pt")
-              .style("font-family","arial");
-
-          };
-      });
+        };
+    });
 
 
 
@@ -253,7 +243,6 @@ select {
           projection.rotate(r(t));
           svg.selectAll("path").attr("d", path)
           .classed("focused", function(d, i) { return d.id == focusedCountry.id ? focused = d : false; })
-
 
           conflict.forEach(function(d){
               svg.select("#i"+d.id)
