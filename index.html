@@ -81,6 +81,14 @@ select {
   .attr("y", "80%")
   .attr("text-anchor","middle");
 
+  var svg3=d3.select("body").append("svg")
+  .attr("id","svg2")
+  .attr("width", width2)
+  .attr("height", height2)
+  .attr("x", "50%")
+  .attr("y", "80%")
+  .attr("text-anchor","middle")
+
   svg2.append("text")
   .attr("id","svg2text")
 
@@ -100,6 +108,7 @@ select {
   function ready(error, world, countryData, conflict) {
     var countryById = {},
     countries = topojson.feature(world, world.objects.countries).features;
+
     //Adding countries to select
     countryData.forEach(function(d) {
       countryById[d.id] = d.name;
@@ -107,8 +116,6 @@ select {
       option.text(d.name);
       option.property("value", d.id);
     });
-
-
 
     //Drawing countries on the globe
     var world = svg.selectAll("path.land")
@@ -217,6 +224,10 @@ select {
 
       d3.select("#svg2")
         .style("border", "solid #3A506B 2px");
+
+
+
+
 
       countryData.filter(function (d){
           if (d.id===String(focusedCountry.id)){
