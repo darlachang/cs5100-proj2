@@ -48,6 +48,14 @@ select {
 }
 </style>
 <body>
+<!--- create time slider -->
+<p id = "time_trend">
+    <label for="year" 
+             style="display: inline-block; text-align: right; color: white">
+             period: <span id="year-value"></span>
+    </label>
+    <input type="range" min="1989" max="2015" id="year" style = "width: 300px; height: 0px">
+</p>
   <script>
   var width = 1200,
   height = 1000,
@@ -68,6 +76,7 @@ select {
   .projection(projection);
 
   var countScale = d3.scale.sqrt();
+  var nestedConflict;
   //SVG container
   var svg = d3.select("body").append("svg")
   .attr("width", width)
@@ -116,6 +125,15 @@ select {
       option.text(d.name);
       option.property("value", d.id);
     });
+
+    //nest conflict year
+    nestedConflict = d3.nest()
+    .key(function (d) { return d.year; })
+    .entries(conflict);
+
+    console.log(nestedConflict);
+    console.log(nestedConflict[0].values);
+    console.log(nestedConflict[0].values[0].latitude);
 
     //Drawing countries on the globe
     var world = svg.selectAll("path.land")
@@ -170,6 +188,19 @@ select {
 
       }); //for each
 
+    //time slider
+    //when the input range change: update
+    d3.select("#year").on("input", function(){
+        update(+this.value);
+    })
+    //initial value of year
+    update(2015);
+    //update the elements
+    function update(year) {
+      d3.select("#year-value").text(year);
+      d3.select("#year").property("value", year);
+      d3.selectAll("circle").remove();
+    }
 
     //conflict data
 
