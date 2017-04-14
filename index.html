@@ -72,6 +72,15 @@ select {
   var svg = d3.select("body").append("svg")
   .attr("width", width)
   .attr("height", height);
+  svg.append("text")
+  .attr("id", "svginstr")
+  .text("Select a country...")
+  .attr("x", "50")
+  .attr("y", "50")
+  .style("fill", "#3A506B")
+  .style("font-size", "36pt")
+  .style("font-family","arial");
+
 
   svg2=svg.append("svg")
     .attr("id","svg2")
@@ -178,6 +187,7 @@ select {
         svg.selectAll(".focused").classed("focused", focused = false)
 
 
+
         conflict.forEach(function(d){
             svg.select("#i"+d.id)
               .attr("cx", projection([d.longitude, d.latitude])[0] )
@@ -228,6 +238,10 @@ select {
 
         };
     });
+
+
+    svg.select("#svginstr") //disappears
+      .style("opacity",0)
 
 
 
