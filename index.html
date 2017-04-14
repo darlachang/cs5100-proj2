@@ -126,26 +126,26 @@ select {
 
     //create initial circles of conflict
     conflict.forEach(function(d){
-        // svg.append("circle")
-        //   .attr("cx", projection([d.longitude, d.latitude])[0] )
-        //   .attr("cy", projection([d.longitude, d.latitude])[1] )
-        //   .attr("id", "i"+d.id)
-        //   .attr("stroke", "#EF5653")
-        //   .attr("stroke-width",0.2)
-        //   .attr("fill", "#EF5653")
-        //   .attr("r", function() {
-        //     if (d.high_est>0){
-        //           return (countScale(Math.log(d.high_est))*10)
-        //         }
-        //         else {
-        //           return 0
-        //         }
-        //       })
+        svg.append("circle")
+          .attr("cx", projection([d.longitude, d.latitude])[0] )
+          .attr("cy", projection([d.longitude, d.latitude])[1] )
+          .attr("id", "i"+d.id)
+          .attr("stroke", "#EF5653")
+          .attr("stroke-width",0.2)
+          .attr("fill", "#EF5653")
+          .attr("r", function() {
+            if (d.high_est>0){
+                  return (countScale(Math.log(d.high_est))*10)
+                }
+                else {
+                  return 0
+                }
+              })
 
 
         function ping(){
 
-            svg.append("circle")
+            svg.selectAll("circle")
             .attr({
               "cx": projection([d.longitude, d.latitude])[0],
               "cy": projection([d.longitude, d.latitude])[1],
@@ -160,7 +160,7 @@ select {
               .duration(3000)
               .attr({
               "fill":"none",
-              "r":countScale(d.high_est)*5,
+              "r":countScale(Math.log(d.high_est))*5,
               "stroke": "#EF5653",
               "stroke-width":0,
               "stroke-opacity":0
@@ -222,7 +222,9 @@ select {
       var rotate = projection.rotate(),
       focusedCountry = country(countries, this),
       p = d3.geo.centroid(focusedCountry);
+      console.log(focusedCountry)
 
+//try to create border for svg
     d3.select("#svg2")
       .style("border", "solid #3A506B 2px");
 
