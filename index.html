@@ -73,21 +73,21 @@ select {
   .attr("width", width)
   .attr("height", height);
 
-  var svg2=d3.select("body").append("svg")
-  .attr("id","svg2")
-  .attr("width", width2)
-  .attr("height", height2)
-  .attr("x", "50%")
-  .attr("y", "80%")
-  .attr("text-anchor","middle");
+  svg2=svg.append("svg")
+    .attr("id","svg2")
+    .attr("width", width2)
+    .attr("height", height2)
+    .attr("x", "20")
+    .attr("y", "50")
+    .attr("text-anchor","middle")
 
-  var svg3=d3.select("body").append("svg")
-  .attr("id","svg2")
-  .attr("width", width2)
-  .attr("height", height2)
-  .attr("x", "50%")
-  .attr("y", "80%")
-  .attr("text-anchor","middle")
+  // var svg2=d3.select("body").append("svg")
+  // .attr("id","svg2")
+  // .attr("width", width2)
+  // .attr("height", height2)
+  // // .attr("x", "5")
+  // // .attr("y", "5")
+  // .attr("text-anchor","middle");
 
   svg2.append("text")
   .attr("id","svg2text")
@@ -222,11 +222,8 @@ select {
       focusedCountry = country(countries, this),
       p = d3.geo.centroid(focusedCountry);
 
-      d3.select("#svg2")
-        .style("border", "solid #3A506B 2px");
-
-
-
+    d3.select("#svg2")
+      .style("border", "solid #3A506B 2px");
 
 
       countryData.filter(function (d){
@@ -238,7 +235,7 @@ select {
               .style("fill", "#3A506B")
               .style("font-size", "36pt")
               .style("font-family","arial");
-            return d.name
+
           };
       });
 
