@@ -107,16 +107,15 @@ text{
   svg2.append("text")
   .attr("id","svg2year")
   svg2.append("text")
-  .attr("id","svg2deaths")
-  perpGraph=svg.append("svg")
-    .attr("id","perpGraph")
+    .attr("id","svg2deaths")
+  whovswhoConflict=svg.append("svg")
+    .attr("id","whovswhoConflict")
     .attr("width", 500)
     .attr("height", 500)
     .attr("x", "800")
-    .attr("y", "400")
-    .attr("text-anchor","middle")
-  perpGraph.append("text")
-  .attr("id","perpGraphtext")
+    .attr("y", "400");
+
+
 
 
 
@@ -215,8 +214,10 @@ text{
         year=update(+this.value)
         countryID=d3.select("select")[0][0]["value"]
 
+
         countryDesc(year, countryID)
       })
+
 
 
 
@@ -348,23 +349,13 @@ text{
                   if (Number(year)===Number(x.year)){
                     deathsPerYear+=Number(x.high_est)
 
-                    if (!(x.side_a in whovswho)){
-                      whovswho[x.side_a]=1
-                      if (!(x.side_b in whovswho)){
-                        whovswho[x.side_b]=1
-                      }
-                      else{
-                        whovswho[x.side_b]+=1
-                      }
+                    if (!(x.dyad_name in whovswho)){
+                      whovswho[x.dyad_name]=1
                     }
                     else{
-                      whovswho[x.side_a]+=1
-                      if (!(x.side_b in whovswho)){
-                        whovswho[x.side_b]=1
-                      }
-                      else{
-                        whovswho[x.side_b]+=1
-                      }
+                      whovswho[x.dyad_name]+=1
+
+
                     }
                   }
                 }
@@ -388,12 +379,24 @@ text{
               .attr("y", "150")
               .style("font-size", "12pt")
               .style("fill", "#992510");
-            perpGraph.select("#perpGraphtext")
-              .text("Groups involved in conflicts")
-              .attr("x", "50%")
-              .attr("y", "100")
-              .style("font-size", "12pt")
-              .style("fill", "#992510");
+            // svg2.select("#svg2conflictgroups")
+            //   .text("Groups involved in conflicts")
+            //   .attr("x", "50%")
+            //   .attr("y", "150")
+            //   .style("font-size", "12pt");
+
+            whovswhoConfclit.app
+
+            for (var key in whovswho){
+              console.log(key)
+              whovswhoConflict.append("text")
+                .text(key + whovswho[key])
+                .style("font-size", "12pt")
+                .style("fill", "#992510")
+            }
+
+
+
 
 
             //
