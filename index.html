@@ -129,39 +129,13 @@ text{
   queue()
   .defer(d3.json, "world-110m.json")
   .defer(d3.tsv, "world-110m-country-names.tsv")
-  .defer(d3.csv, "conflicttest.csv")
+  .defer(d3.csv, "conflictdata.csv")
   .await(ready);
-  //Main function
-  function ready(error, world, countryData, conflict) {
-    var countryById = {},
-    countries = topojson.feature(world, world.objects.countries).features;
 
-    //Adding countries to select
-    countryData.forEach(function(d) {
-      countryById[d.id] = d.name;
-      option = countryList.append("option");
-      option.text(d.name);
-      option.property("value", d.id);
-    });
-
-    //nest conflict year
-    nestedConflict = d3.nest()
-    .key(function (d) { return d.year; })
-    .entries(conflict);
-
-    console.log(nestedConflict);
-    console.log(nestedConflict[0].values);
-    console.log(nestedConflict[0].values[0].latitude);
-
-    //Drawing countries on the globe
-    var world = svg.selectAll("path.land")
-    .data(countries)
-    .enter().append("path")
-    .attr("class", "land")
-    .attr("d", path)
-
-    //create initial circles of conflict
-    conflict.forEach(function(d){
+   var cnt = 0;
+   function drawCircle(CircleData){
+     CircleData.forEach(function(din){
+      console.log("draw circle");
         // svg.append("circle")
         //   .attr("cx", projection([d.longitude, d.latitude])[0] )
         //   .attr("cy", projection([d.longitude, d.latitude])[1] )
@@ -178,13 +152,15 @@ text{
         //         }
         //       })
 
-
-        function ping(){
-
+        function ping(  ){
+          cnt += 1;
+       // function ping( array ){
             svg.append("circle")
+            .attr("class", "pingCircle")
+            //.data(array)
             .attr({
-              "cx": projection([d.longitude, d.latitude])[0],
-              "cy": projection([d.longitude, d.latitude])[1],
+              "cx": projection([din.longitude, din.latitude])[0],
+              "cy": projection([din.longitude, din.latitude])[1],
               "stroke": "#EF5653",
               "stroke-width": 1,
               "stroke-opacity":1,
@@ -196,20 +172,52 @@ text{
               .duration(3000)
               .attr({
               "fill":"none",
-              "r":countScale(Math.log(d.high_est))*5,
+              "r":countScale(din.high_est)*5,
               "stroke": "#EF5653",
               "stroke-width":0,
               "stroke-opacity":0
-            }); //for attr
-          };
+            }) //for attr       
+        };
         setInterval(ping,200);
-
       }); //for each
+  }
+
+  //Main function
+   var count = 0;
+  function ready(error, world, countryData, conflict) {
+    count += 1;
+    var countryById = {},
+    countries = topojson.feature(world, world.objects.countries).features;
+
+    //Adding countries to select
+    countryData.forEach(function(d) {
+      countryById[d.id] = d.name;
+      option = countryList.append("option");
+      option.text(d.name);
+      option.property("value", d.id);
+    });
+
+    //nest conflict year
+    nestedConflict = d3.nest()
+    .key(function (d) { return d.year; })
+    .entries(conflict);
+
+    console.log(count);
+    //console.log(nestedConflict);
+    console.log(nestedConflict[2015-1989].key+"initial");
+    console.log(nestedConflict[2015-1989].values[0].latitude);
+
+    //Drawing countries on the globe
+    var world = svg.selectAll("path.land")
+    .data(countries)
+    .enter().append("path")
+    .attr("class", "land")
+    .attr("d", path)
+
+    drawCircle(nestedConflict[2015-1989].values);
 
     //time slider
     //when the input range change: update
-
-
     d3.select("#year").on("input", function(){
         year=update(+this.value)
         countryID=d3.select("select")[0][0]["value"]
@@ -228,7 +236,14 @@ text{
       d3.select("#year-value").text(year);
       d3.select("#year").property("value", year);
       d3.selectAll("circle").remove();
-      return year
+      nestedConflict.forEach(function (d) {
+        if(d.key == year){
+          console.log("yes" + year);
+        }
+        else {
+          console.log("no");
+        }
+      })
     }
 
 
@@ -384,8 +399,6 @@ text{
             //   .attr("x", "50%")
             //   .attr("y", "150")
             //   .style("font-size", "12pt");
-
-            whovswhoConfclit.app
 
             for (var key in whovswho){
               console.log(key)
