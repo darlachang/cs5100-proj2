@@ -46,11 +46,15 @@ select {
   font-size: 14px;
   font-family: sans-serif;
 }
+text{
+  fill: #3A506B;
+  font-family: "arial";
+}
 </style>
 <body>
 <!--- create time slider -->
 <p id = "time_trend">
-    <label for="year" 
+    <label for="year"
              style="display: inline-block; text-align: right; color: white">
              period: <span id="year-value"></span>
     </label>
@@ -63,7 +67,7 @@ select {
   focused;
 
   var width2=500,
-  height2=500,
+  height2=800,
   padding=50;
 
   //Setting projection
@@ -96,10 +100,25 @@ select {
     .attr("width", width2)
     .attr("height", height2)
     .attr("x", "800")
-    .attr("y", "50")
+    .attr("y", "100")
     .attr("text-anchor","middle")
   svg2.append("text")
-  .attr("id","svg2text")
+  .attr("id","svg2country")
+  svg2.append("text")
+  .attr("id","svg2year")
+  svg2.append("text")
+  .attr("id","svg2deaths")
+  perpGraph=svg.append("svg")
+    .attr("id","perpGraph")
+    .attr("width", 500)
+    .attr("height", 500)
+    .attr("x", "800")
+    .attr("y", "400")
+    .attr("text-anchor","middle")
+  perpGraph.append("text")
+  .attr("id","perpGraphtext")
+
+
 
   //Adding water
   svg.append("path")
@@ -144,26 +163,26 @@ select {
 
     //create initial circles of conflict
     conflict.forEach(function(d){
-        svg.append("circle")
-          .attr("cx", projection([d.longitude, d.latitude])[0] )
-          .attr("cy", projection([d.longitude, d.latitude])[1] )
-          .attr("id", "i"+d.id)
-          .attr("stroke", "#EF5653")
-          .attr("stroke-width",0.2)
-          .attr("fill", "#EF5653")
-          .attr("r", function() {
-            if (d.high_est>0){
-                  return (countScale(Math.log(d.high_est))*10)
-                }
-                else {
-                  return 0
-                }
-              })
+        // svg.append("circle")
+        //   .attr("cx", projection([d.longitude, d.latitude])[0] )
+        //   .attr("cy", projection([d.longitude, d.latitude])[1] )
+        //   .attr("id", "i"+d.id)
+        //   .attr("stroke", "#EF5653")
+        //   .attr("stroke-width",0.2)
+        //   .attr("fill", "#EF5653")
+        //   .attr("r", function() {
+        //     if (d.high_est>0){
+        //           return (countScale(Math.log(d.high_est))*10)
+        //         }
+        //         else {
+        //           return 0
+        //         }
+        //       })
 
 
         function ping(){
 
-            svg.selectAll("circle")
+            svg.append("circle")
             .attr({
               "cx": projection([d.longitude, d.latitude])[0],
               "cy": projection([d.longitude, d.latitude])[1],
@@ -190,9 +209,17 @@ select {
 
     //time slider
     //when the input range change: update
+
+
     d3.select("#year").on("input", function(){
-        update(+this.value);
-    })
+        year=update(+this.value)
+        countryID=d3.select("select")[0][0]["value"]
+
+        countryDesc(year, countryID)
+      })
+
+
+
     //initial value of year
     update(2015);
     //update the elements
@@ -200,9 +227,12 @@ select {
       d3.select("#year-value").text(year);
       d3.select("#year").property("value", year);
       d3.selectAll("circle").remove();
+      return year
     }
 
+
     //conflict data
+
 
 
     svg.selectAll("path.land")
@@ -249,28 +279,25 @@ select {
       .style("top", (d3.event.pageY - 15) + "px");
     });
     //Country focus on option select
+
+
     d3.select("select").on("change", function() {
       var rotate = projection.rotate(),
       focusedCountry = country(countries, this),
+
       p = d3.geo.centroid(focusedCountry);
-      console.log(focusedCountry)
+
+      //pull the selected year from the listener
+      var year=d3.select("#year")[0][0]["value"]
+
 
 //try to create border for svg
+
     d3.select("#svg2")
       .style("border", "solid #3A506B 2px");
 
-    countryData.filter(function (d){
-        if (d.id===String(focusedCountry.id)){
-          svg2.select("#svg2text")
-            .text(d.name)
-            .attr("x", "50%")
-            .attr("y", "50")
-            .style("fill", "#3A506B")
-            .style("font-size", "36pt")
-            .style("font-family","arial");
 
-        };
-    });
+    countryDesc(year, focusedCountry.id)
 
 
     svg.select("#svginstr") //disappears
@@ -291,17 +318,7 @@ select {
           svg.selectAll("path").attr("d", path)
           .classed("focused", function(d, i) { return d.id == focusedCountry.id ? focused = d : false; })
 
-          conflict.forEach(function(d){
-              svg.select("#i"+d.id)
-                .attr("cx", projection([d.longitude, d.latitude])[0] )
-                .attr("cy", projection([d.longitude, d.latitude])[1] )
-                .attr("stroke", "red")
-                .attr("stroke-width",0.2)
-                .attr("fill", "red")
-                .attr("r", function() {
-                  return (countScale(Math.log(d.high_est))*0.1); })
-                .attr("fill-opacity","0.5");
-              });
+
         };
       })
       })();
@@ -311,6 +328,99 @@ select {
         if(cnt[i].id == sel.value) {return cnt[i];}
       }
     };
+
+
+//function that appens the country description and year
+
+  var deathArray=[];
+  var deaths;
+  function countryDesc(year, selectCountry){
+
+
+    var deathsPerYear=0;
+    var whovswho=[]
+
+      countryData.filter(function (d){
+          if (d.id===String(selectCountry)){
+
+            conflict.filter(function(x){ //totals the number of deaths that year for specified country, and adds up totals for country
+                if (d.name===x.country){
+                  if (Number(year)===Number(x.year)){
+                    deathsPerYear+=Number(x.high_est)
+
+                    if (!(x.side_a in whovswho)){
+                      whovswho[x.side_a]=1
+                      if (!(x.side_b in whovswho)){
+                        whovswho[x.side_b]=1
+                      }
+                      else{
+                        whovswho[x.side_b]+=1
+                      }
+                    }
+                    else{
+                      whovswho[x.side_a]+=1
+                      if (!(x.side_b in whovswho)){
+                        whovswho[x.side_b]=1
+                      }
+                      else{
+                        whovswho[x.side_b]+=1
+                      }
+                    }
+                  }
+                }
+            })
+            console.log(whovswho)
+
+
+            svg2.select("#svg2country")
+              .text(d.name)
+              .attr("x", "50%")
+              .attr("y", "50")
+              .style("font-size", "36pt");
+            svg2.select("#svg2year")
+              .text("In "+year+",")
+              .attr("x", "50%")
+              .attr("y", "100")
+              .style("font-size", "12pt");
+            svg2.select("#svg2deaths")
+              .text("There were "+deathsPerYear+" deaths.")
+              .attr("x", "50%")
+              .attr("y", "150")
+              .style("font-size", "12pt")
+              .style("fill", "#992510");
+            perpGraph.select("#perpGraphtext")
+              .text("Groups involved in conflicts")
+              .attr("x", "50%")
+              .attr("y", "100")
+              .style("font-size", "12pt")
+              .style("fill", "#992510");
+
+
+            //
+            // whovswhoMax=d3.max(d3.values(whovswho))
+            //
+            // var whovswhoScale = d3.scaleBand().domain(loop()).range([0,500]).padding(0.5);
+            // var height=500
+            // var conflictScale = d3.scaleLinear().domain([0, whovswhoMax]).range([height,0]);
+            // if (whovswho!=[]){
+            //   perpGraph.append("rect")
+            //   .attr("x", whovswhoScale(key))
+            //   .attr("y", conflictScale(whovswho[key]))
+            //   .attr("width", whovswhoScale.bandwidth())
+            //   .attr("height", height-conflictScale(hotelTypeArray[key]))
+            //   .attr("transform", "translate(100,50)")
+            //   .style("fill", colorScale(key))
+            // }
+
+
+
+
+
+
+          }
+      });
+
+  }
 
 
 
