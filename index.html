@@ -133,6 +133,7 @@ text{
   .await(ready);
 
    var cnt = 0;
+   var myIntervId;
    function drawCircle(CircleData){
      CircleData.forEach(function(din){
       console.log("draw circle");
@@ -178,7 +179,8 @@ text{
               "stroke-opacity":0
             }) //for attr       
         };
-        setInterval(ping,200);
+        myIntervId = setInterval(ping,200);
+
       }); //for each
   }
 
@@ -203,9 +205,9 @@ text{
     .entries(conflict);
 
     console.log(count);
-    //console.log(nestedConflict);
-    console.log(nestedConflict[2015-1989].key+"initial");
-    console.log(nestedConflict[2015-1989].values[0].latitude);
+    console.log(nestedConflict);
+    //console.log(nestedConflict[2015-1989].key+"initial");
+    //console.log(nestedConflict[2015-1989].values[0].latitude);
 
     //Drawing countries on the globe
     var world = svg.selectAll("path.land")
@@ -236,6 +238,7 @@ text{
       d3.select("#year-value").text(year);
       d3.select("#year").property("value", year);
       d3.selectAll("circle").remove();
+      clearInterval(myIntervId);
       nestedConflict.forEach(function (d) {
         if(d.key == year){
           console.log("yes" + year);
@@ -244,6 +247,7 @@ text{
           console.log("no");
         }
       })
+      return year;
     }
 
 
@@ -265,17 +269,17 @@ text{
 
 
 
-        conflict.forEach(function(d){
-            svg.select("#i"+d.id)
-              .attr("cx", projection([d.longitude, d.latitude])[0] )
-              .attr("cy", projection([d.longitude, d.latitude])[1] )
-              .attr("stroke", "red")
-              .attr("stroke-width",0.2)
-              .attr("fill", "red")
-              .attr("r", function() {
-                return (countScale(Math.log(d.high_est))*0.1); })
-              .attr("fill-opacity","0.5");
-            });
+        // conflict.forEach(function(d){
+        //     svg.select("#i"+d.id)
+        //       .attr("cx", projection([d.longitude, d.latitude])[0] )
+        //       .attr("cy", projection([d.longitude, d.latitude])[1] )
+        //       .attr("stroke", "red")
+        //       .attr("stroke-width",0.2)
+        //       .attr("fill", "red")
+        //       .attr("r", function() {
+        //         return (countScale(Math.log(d.high_est))*0.1); })
+        //       .attr("fill-opacity","0.5");
+        //     });
       }))
 
     //Mouse events
