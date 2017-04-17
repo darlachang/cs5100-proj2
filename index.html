@@ -66,9 +66,9 @@ text{
   sens = 0.25,
   focused;
 
-  var width2=500,
-  height2=800,
-  padding=50;
+  var width2=1000,
+height2=220,
+padding=50;
 
   //Setting projection
   var projection = d3.geo.orthographic()
@@ -95,25 +95,29 @@ text{
   .style("font-family","arial");
 
 
-  svg2=svg.append("svg")
-    .attr("id","svg2")
-    .attr("width", width2)
-    .attr("height", height2)
-    .attr("x", "800")
-    .attr("y", "100")
-    .attr("text-anchor","middle")
-  svg2.append("text")
-  .attr("id","svg2country")
-  svg2.append("text")
-  .attr("id","svg2year")
-  svg2.append("text")
-    .attr("id","svg2deaths")
-  whovswhoConflict=svg.append("svg")
-    .attr("id","whovswhoConflict")
-    .attr("width", 500)
-    .attr("height", 500)
-    .attr("x", "800")
-    .attr("y", "400");
+  svg.append("text")
+.attr("id","svg2country")
+svg.append("text")
+.attr("id","svg2year")
+svg.append("text")
+  .attr("id","svg2deaths")
+svg.append("text")
+  .attr("id","svg2conflictgroups")
+whovswhoConflict=svg.append("svg")
+  .attr("id","whovswhoConflict")
+  .attr("width", 500)
+  .attr("height", 600)
+  .attr("x", "700")
+  .attr("y", 220);
+
+svg2=d3.select("body").append("svg")
+  .attr("id","svg2")
+  .attr("width", width2)
+  .attr("height", height2)
+  .attr("x", 0)
+  .attr("y", height)
+  .attr("text-anchor","middle")
+
 
 
 
@@ -180,7 +184,7 @@ text{
               "stroke": "#EF5653",
               "stroke-width":0,
               "stroke-opacity":0
-            }) //for attr       
+            }) //for attr
         };
        // myIntervId = setInterval(ping,200);
         //console.log(myIntervId+"interval id");
@@ -383,39 +387,50 @@ text{
                   }
                 }
             })
-            console.log(whovswho)
 
 
-            svg2.select("#svg2country")
+
+            svg.select("#svg2country")
               .text(d.name)
-              .attr("x", "50%")
+              .attr("x", width-50)
               .attr("y", "50")
+              .attr("text-anchor", "end")
               .style("font-size", "36pt");
-            svg2.select("#svg2year")
+            svg.select("#svg2year")
               .text("In "+year+",")
-              .attr("x", "50%")
+              .attr("x", width-50)
               .attr("y", "100")
+              .attr("text-anchor", "end")
               .style("font-size", "12pt");
-            svg2.select("#svg2deaths")
+            svg.select("#svg2deaths")
               .text("There were "+deathsPerYear+" deaths.")
-              .attr("x", "50%")
+              .attr("x", width-50)
               .attr("y", "150")
+              .attr("text-anchor", "end")
               .style("font-size", "12pt")
               .style("fill", "#992510");
-            // svg2.select("#svg2conflictgroups")
-            //   .text("Groups involved in conflicts")
-            //   .attr("x", "50%")
-            //   .attr("y", "150")
-            //   .style("font-size", "12pt");
 
-            for (var key in whovswho){
-              console.log(key)
-              whovswhoConflict.append("text")
-                .text(key + whovswho[key])
-                .style("font-size", "12pt")
-                .style("fill", "#992510")
-            }
+            svg.select("#svg2conflictgroups")
+              .text("Groups involved in conflicts")
+              .attr("x", width-50)
+              .attr("y", "200")
+              .attr("text-anchor", "end")
+              .style("font-size", "12pt");
 
+            whovswhoConflict.selectAll("text").remove()
+              count=1
+
+              for (var key in whovswho){
+                whovswhoConflict.append("text")
+                  .text(key +": " + whovswho[key])
+                  .attr("x", "450")
+                  .attr("y", count*12)
+                  .style("font-size", "10pt")
+                  .style("fill", "#992510")
+                  .attr("text-anchor", "end")
+
+                  count+=1
+              }
 
 
 
