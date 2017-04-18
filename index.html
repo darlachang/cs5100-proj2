@@ -130,7 +130,7 @@ text{
   .defer(d3.json, "world-110m.json")
   .defer(d3.tsv, "world-110m-country-names.tsv")
   .defer(d3.csv, "conflictdata.csv")
-  .defer(d3.csv, "armsdata.csv")
+  .defer(d3.csv, "armsdata.csv", parseLine, initialize)
   .await(ready);
 
    var cnt = 0;
@@ -211,7 +211,38 @@ text{
 
   //Main function
    var count = 0;
-  function ready(error, world, countryData, conflict) {
+
+function parseLine(row) {
+    row.Value = Number(row.Value);
+    row.Partner_Name = String(row.Partner_Name);
+    row.Year = String(row.Year);
+    return row;
+}
+
+
+function initialize(error, data) {
+
+    arms = data;
+
+    for (var i = 0; i< arms.length ;i++) {
+        arms[i].Partner_Name = arms[i].Partner_Name.trim();
+        arms[i].Year = Number(arms[i].Year.substring(0,4));        
+    }
+
+    nestedArms = d3.nest()
+        .key(function(d){return d.Partner_Name;})
+        .key(function(d){return d.Year;})
+        .rollup(function(leaves){return {"total_value" : d3.sum(leaves, function(d) {return parseFloat(d.Value);})}})
+        .entries(arms);
+
+    
+    console.log("loaded data");
+
+     };
+
+  function ready(error, world, countryData, conflict, arms) {
+
+
     count += 1;
     var countryById = {},
     countries = topojson.feature(world, world.objects.countries).features;
