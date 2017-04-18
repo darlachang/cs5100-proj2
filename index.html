@@ -130,12 +130,17 @@ text{
   .defer(d3.json, "world-110m.json")
   .defer(d3.tsv, "world-110m-country-names.tsv")
   .defer(d3.csv, "conflictdata.csv")
-  .defer(d3.csv, "armsdata.csv", parseLine, initialize)
   .await(ready);
 
    var cnt = 0;
    var myIntervId;
    function drawCircle(circleData){
+    // console.log("india",projection([-78.9629, 20.5937])); //india
+    // console.log("algeria",projection([1.6596, 28.0339])); //algeria
+    // console.log("france",projection([2.2137, 46.2276])); //france
+    // console.log("nicaragua", projection([-85.2072, 12.8654])); //india
+    // console.log("fiji", projection([178.0650, -17.7134])); //fiji
+
      circleData.forEach(function(din){
 
 
@@ -156,6 +161,8 @@ text{
                 }
               })
           .attr("fill-opacity","0.5");
+
+
 
         function ping(  ){
           cnt += 1;
@@ -211,38 +218,7 @@ text{
 
   //Main function
    var count = 0;
-
-function parseLine(row) {
-    row.Value = Number(row.Value);
-    row.Partner_Name = String(row.Partner_Name);
-    row.Year = String(row.Year);
-    return row;
-}
-
-
-function initialize(error, data) {
-
-    arms = data;
-
-    for (var i = 0; i< arms.length ;i++) {
-        arms[i].Partner_Name = arms[i].Partner_Name.trim();
-        arms[i].Year = Number(arms[i].Year.substring(0,4));        
-    }
-
-    nestedArms = d3.nest()
-        .key(function(d){return d.Partner_Name;})
-        .key(function(d){return d.Year;})
-        .rollup(function(leaves){return {"total_value" : d3.sum(leaves, function(d) {return parseFloat(d.Value);})}})
-        .entries(arms);
-
-    
-    console.log("loaded data");
-
-     };
-
-  function ready(error, world, countryData, conflict, arms) {
-
-
+  function ready(error, world, countryData, conflict) {
     count += 1;
     var countryById = {},
     countries = topojson.feature(world, world.objects.countries).features;
@@ -342,8 +318,8 @@ function initialize(error, data) {
       var rotate = projection.rotate(),
       focusedCountry = country(countries, this),
 
-      p = d3.geo.centroid(focusedCountry);
-
+      //p is focusedCountry's [longitutude, latitude]
+      p = d3.geo.centroid(focusedCountry); 
 
       //pull the selected year from the listener
       var year=d3.select("#year")[0][0]["value"]
@@ -415,7 +391,7 @@ function initialize(error, data) {
                   }
                 }
             })
-            console.log(whovswho)
+//            console.log(whovswho)
 
 
             svg2.select("#svg2country")
