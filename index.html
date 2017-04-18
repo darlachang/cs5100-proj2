@@ -257,6 +257,11 @@ svg2=d3.select("body").append("svg")
     }
 
 
+    var isocc = d3.values(nestedConflict).map(function (d){
+      return d.values[0][0].isocc;
+    })
+    console.log(isocc);
+
     //conflict data
     svg.selectAll("path.land")
     .data(countries)
@@ -272,9 +277,9 @@ svg2=d3.select("body").append("svg")
 
 
 
-        conflict.forEach(function(d){
+        nestedConflict.forEach(function(d){
 
-          svg.select("#i"+d.id)
+          svg.selectAll("#i"+d.id)
             .attr("cx", projection([d.longitude, d.latitude])[0] )
             .attr("cy", projection([d.longitude, d.latitude])[1] )
             .attr("stroke", "#EF5653")
@@ -346,6 +351,24 @@ svg2=d3.select("body").append("svg")
           svg.selectAll("path").attr("d", path)
           .classed("focused", function(d, i) { return d.id == focusedCountry.id ? focused = d : false; })
 
+ //              conflict.forEach(function(d){
+
+          // svg.select("#i"+d.id)
+          //   .attr("cx", projection([d.longitude, d.latitude])[0] )
+          //   .attr("cy", projection([d.longitude, d.latitude])[1] )
+          //   .attr("stroke", "#EF5653")
+          //   .attr("stroke-width",1)
+          //   .attr("fill", "#EF5653")
+          //   .attr("r", function() {
+          //     if (d.high_est>0){
+          //         return (countScale(Math.log(d.high_est))*0.1)
+          //         }
+          //         else {
+          //           return 0
+          //         }
+          //       })
+          //   .attr("fill-opacity","0.5");
+       // }); //end of forEach
 
         };
       })
