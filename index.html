@@ -130,6 +130,7 @@ text{
   .defer(d3.json, "world-110m.json")
   .defer(d3.tsv, "world-110m-country-names.tsv")
   .defer(d3.csv, "conflictdata.csv")
+  .defer(d3.csv, "armsdata.csv")
   .await(ready);
 
    var cnt = 0;
