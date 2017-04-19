@@ -46,6 +46,19 @@ select {
   font-size: 14px;
   font-family: sans-serif;
 }
+path {
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
 text{
   fill: #3A506B;
   font-family: "arial";
@@ -66,8 +79,10 @@ text{
   sens = 0.25,
   focused;
 
-  var width2=1000,
-  height2=220,
+  var
+  margin = {top: 20, right: 100, bottom: 30, left: 100},
+  width2=1000-margin.left-margin.right,
+  height2=220-margin.top-margin.bottom,
   padding=50;
 
   //Setting projection
@@ -112,11 +127,15 @@ whovswhoConflict=svg.append("svg")
 
 svg2=d3.select("body").append("svg")
 .attr("id","svg2")
-.attr("width", width2)
-.attr("height", height2)
+.attr("width", width2 + margin.left + margin.right)
+.attr("height", height2 + margin.top + margin.bottom)
 .attr("x", 0)
 .attr("y", height)
 .attr("text-anchor","middle")
+.append("g")
+       .attr("transform",
+             "translate(" + margin.left + "," + margin.top + ")");
+
 
 
 
@@ -419,7 +438,7 @@ svg2=d3.select("body").append("svg")
         .style("font-size", "12pt")
         .style("fill", "#992510");
       svg.select("#svg2conflictgroups")
-        .text("Groups involved in conflicts")
+        .text("Groups involved in conflicts and deaths are a result")
         .attr("x", width-50)
         .attr("y", "200")
         .attr("text-anchor", "end")
@@ -474,6 +493,7 @@ svg2=d3.select("body").append("svg")
         .style("font-size", "12pt");
       whovswhoConflict.selectAll("text").remove()
       svg2.selectAll("path").remove()
+      
 
     }
 
@@ -504,13 +524,15 @@ svg2=d3.select("body").append("svg")
       function conflictLineGraph(conflictByCountry){
         conflictByCountry=yValues(conflictByCountry)
         function yValues(conflictByCountry){
-          var tempNum=0;
+
           conflictByCountry[0]["values"].forEach(function(d){
+            var tempNum=0;
             d["values"].forEach(function(x){
               tempNum+=x["values"]["deaths"]
             })
             d["deathsByYear"]=tempNum
           })
+
           return conflictByCountry
         }
         console.log(conflictByCountry)
@@ -548,7 +570,7 @@ svg2=d3.select("body").append("svg")
         // Add the X Axis
         svg2.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
+            .attr("transform", "translate(0," + height2 + ")")
             .call(xAxis);
 
         // Add the Y Axis
