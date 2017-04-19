@@ -118,6 +118,8 @@ svg.append("text")
 .attr("id","svg2deaths")
 svg.append("text")
 .attr("id","svg2conflictgroups")
+svg.append("text")
+.attr("id","svgExports")
 whovswhoConflict=svg.append("svg")
 .attr("id","whovswhoConflict")
 .attr("width", 500)
@@ -137,6 +139,13 @@ svg2=d3.select("body").append("svg")
              "translate(" + margin.left + "," + margin.top + ")");
 
 
+function parseLine(row){
+  row.Value=Number(row.Value);
+  row.Partner_Name=String(row.Partner_Name);
+  row.Year=String(row.Year);
+
+  return row;
+}
 
 
 
@@ -151,6 +160,7 @@ svg2=d3.select("body").append("svg")
   .defer(d3.json, "world-110m.json")
   .defer(d3.tsv, "world-110m-country-names.tsv")
   .defer(d3.csv, "conflictdata.csv")
+  .defer(d3.csv,"armsdata.csv", parseLine)
   .await(ready);
 
    var cnt = 0;
@@ -238,8 +248,28 @@ svg2=d3.select("body").append("svg")
   }
 
   //Main function
-   var count = 0;
-  function ready(error, world, countryData, conflict) {
+  var count = 0;
+  function ready(error, world, countryData, conflict, exportArms) {
+
+    function initialize(exportArms){
+      arms=exportArms;
+
+      for (var i=0; i<arms.length; i++){
+        arms[i].Partner_Name=arms[i].Partner_Name.trim();
+        arms[i].Year=Number(arms[i].Year.substring(0,4));
+      }
+      nestedArms=d3.nest()
+        .key(function(d){return d.Partner_Name;})
+        .key(function(d){return d.Year;})
+        .rollup(function(leaves){return {"total_value":d3.sum(leaves,function(d){return parseFloat(d.Value);})}})
+        .entries(arms);
+
+      return nestedArms
+    }
+
+    nestedArms=initialize(exportArms)
+
+
     count += 1;
     var countryById = {},
     countries = topojson.feature(world, world.objects.countries).features;
@@ -288,7 +318,7 @@ svg2=d3.select("body").append("svg")
         d3.selectAll("circle").remove();
         year=update(+this.value)
         countryID=d3.select("select")[0][0]["value"]
-        countryDesc(year, countryID,data)
+        countryDesc(year, countryID,data, nestedArms)
 
       })
 
@@ -358,7 +388,7 @@ svg2=d3.select("body").append("svg")
     d3.select("#svg2")
       .style("border", "solid #3A506B 2px");
 
-    countryDesc(year, focusedCountry.id,data)
+    countryDesc(year, focusedCountry.id,data,nestedArms)
 
     svg.select("#svginstr") //disappears
       .style("opacity",0)
@@ -394,8 +424,7 @@ svg2=d3.select("body").append("svg")
 
   var deathArray=[];
   var deaths;
-  function countryDesc(year, selectCountry){
-
+  function countryDesc(year, selectCountry,data,nestedArms){
 
     year=String(year)
     var deathsPerYear=0;
@@ -409,6 +438,23 @@ svg2=d3.select("body").append("svg")
     var conflictByCountry = data.filter(function(country){
          return country["key"]===selectedCountry[0]["name"]
        })
+
+    var exportsByCountry=nestedArms.filter(function(arms){
+      return arms["key"]===selectedCountry[0]["name"]
+    })
+    console.log(exportsByCountry)
+
+    if (exportsByCountry[0]!==undefined){
+      var exportsByYear=exportsByCountry[0]["values"].filter(function(d){
+        return d["key"]===year
+
+        })
+
+      }
+
+      console.log(exportsByYear)
+
+
 
     if (conflictByCountry[0]!==undefined){
       conflictLineGraph(conflictByCountry)
@@ -438,11 +484,18 @@ svg2=d3.select("body").append("svg")
         .style("font-size", "12pt")
         .style("fill", "#992510");
       svg.select("#svg2conflictgroups")
-        .text("Groups involved in conflicts and deaths are a result")
+        .text("Groups involved in conflicts and deaths as a result")
         .attr("x", width-50)
         .attr("y", "200")
         .attr("text-anchor", "end")
         .style("font-size", "12pt");
+      svg.select("#svgExports")
+        .text(exportsByYear[0]["key"]+":"+exportsByYear[0]["values"]["total_value"])
+        .attr("x", width-50)
+        .attr("y", "250")
+        .attr("text-anchor", "end")
+        .style("font-size", "12pt")
+
 
       whovswhoConflict.selectAll("text").remove()
 
@@ -492,8 +545,11 @@ svg2=d3.select("body").append("svg")
         .attr("text-anchor", "end")
         .style("font-size", "12pt");
       whovswhoConflict.selectAll("text").remove()
+
       svg2.selectAll("path").remove()
-      
+
+      svg2.selectAll("g").remove()
+
 
     }
 
@@ -535,8 +591,8 @@ svg2=d3.select("body").append("svg")
 
           return conflictByCountry
         }
-        console.log(conflictByCountry)
 
+        svg2.selectAll("g").remove()
         svg2.selectAll("path").remove()
         d3.select("#svg2")
           .style("border", "solid #3A506B 2px");
