@@ -66,8 +66,8 @@ text{
   sens = 0.25,
   focused;
 
-  var width2=500,
-  height2=800,
+  var width2=1000,
+  height2=220,
   padding=50;
 
   //Setting projection
@@ -95,26 +95,28 @@ text{
   .style("font-family","arial");
 
 
-  svg2=svg.append("svg")
-    .attr("id","svg2")
-    .attr("width", width2)
-    .attr("height", height2)
-    .attr("x", "800")
-    .attr("y", "100")
-    .attr("text-anchor","middle")
-  svg2.append("text")
-  .attr("id","svg2country")
-  svg2.append("text")
-  .attr("id","svg2year")
-  svg2.append("text")
-    .attr("id","svg2deaths")
-  whovswhoConflict=svg.append("svg")
-    .attr("id","whovswhoConflict")
-    .attr("width", 500)
-    .attr("height", 500)
-    .attr("x", "800")
-    .attr("y", "400");
+svg.append("text")
+.attr("id","svg2country")
+svg.append("text")
+.attr("id","svg2year")
+svg.append("text")
+.attr("id","svg2deaths")
+svg.append("text")
+.attr("id","svg2conflictgroups")
+whovswhoConflict=svg.append("svg")
+.attr("id","whovswhoConflict")
+.attr("width", 500)
+.attr("height", 600)
+.attr("x", "700")
+.attr("y", 220);
 
+svg2=d3.select("body").append("svg")
+.attr("id","svg2")
+.attr("width", width2)
+.attr("height", height2)
+.attr("x", 0)
+.attr("y", height)
+.attr("text-anchor","middle")
 
 
 
@@ -188,7 +190,7 @@ text{
               "stroke": "#EF5653",
               "stroke-width":0,
               "stroke-opacity":0
-            }) //for attr       
+            }) //for attr
         };
        // myIntervId = setInterval(ping,200);
         //console.log(myIntervId+"interval id");
@@ -213,7 +215,7 @@ text{
                   }
                 })
             .attr("fill-opacity","0.5");
-        }); //end of forEach   
+        }); //end of forEach
   }
 
   //Main function
@@ -223,6 +225,13 @@ text{
     var countryById = {},
     countries = topojson.feature(world, world.objects.countries).features;
 
+    //nested data for later
+    data=d3.nest()
+        .key(function(d){return d.country;})
+        .key(function(d){return d.year})
+        .rollup(function(leaves) { return { "deaths": d3.sum(leaves, function(d) {return Number(d.high_est);})} })
+        .key(function(d){return d.dyad_name})
+        .entries(conflict);
     //Adding countries to select
     countryData.forEach(function(d) {
       countryById[d.id] = d.name;
@@ -260,7 +269,7 @@ text{
         d3.selectAll("circle").remove();
         year=update(+this.value)
         countryID=d3.select("select")[0][0]["value"]
-        countryDesc(year, countryID)
+        countryDesc(year, countryID,data)
 
       })
 
@@ -291,7 +300,7 @@ text{
 
         svg.selectAll("path.land").attr("d", path);
         svg.selectAll(".focused").classed("focused", focused = false)
-        
+
         moveCircle(thisYearConflict);
       }))
 
@@ -319,7 +328,7 @@ text{
       focusedCountry = country(countries, this),
 
       //p is focusedCountry's [longitutude, latitude]
-      p = d3.geo.centroid(focusedCountry); 
+      p = d3.geo.centroid(focusedCountry);
 
       //pull the selected year from the listener
       var year=d3.select("#year")[0][0]["value"]
@@ -330,7 +339,7 @@ text{
     d3.select("#svg2")
       .style("border", "solid #3A506B 2px");
 
-    countryDesc(year, focusedCountry.id)
+    countryDesc(year, focusedCountry.id,data)
 
     svg.select("#svginstr") //disappears
       .style("opacity",0)
@@ -369,90 +378,193 @@ text{
   function countryDesc(year, selectCountry){
 
 
+    year=String(year)
     var deathsPerYear=0;
-    var whovswho=[]
+    var whovswho=[];
+    var countryName="";
 
-      countryData.filter(function (d){
-          if (d.id===String(selectCountry)){
+    selectedCountry=countryData.filter(function (d){
+        return d.id===String(selectCountry)
+    })
 
-            conflict.filter(function(x){ //totals the number of deaths that year for specified country, and adds up totals for country
-                if (d.name===x.country){
-                  if (Number(year)===Number(x.year)){
-                    deathsPerYear+=Number(x.high_est)
+    var conflictByCountry = data.filter(function(country){
+         return country["key"]===selectedCountry[0]["name"]
+       })
 
-                    if (!(x.dyad_name in whovswho)){
-                      whovswho[x.dyad_name]=1
-                    }
-                    else{
-                      whovswho[x.dyad_name]+=1
+    if (conflictByCountry[0]!==undefined){
+      conflictLineGraph(conflictByCountry)
+      var conflictByYear=conflictByCountry[0]["values"].filter(function(d){
+        return d["key"]===year
+
+      })
+      var deathsTotal=loopOfDeath(conflictByYear)
+
+      svg.select("#svg2country")
+        .text(conflictByCountry[0]["key"])
+        .attr("x", width-50)
+        .attr("y", "50")
+        .attr("text-anchor", "end")
+        .style("font-size", "36pt");
+      svg.select("#svg2year")
+        .text("In "+year+",")
+        .attr("x", width-50)
+        .attr("y", "100")
+        .attr("text-anchor", "end")
+        .style("font-size", "12pt");
+      svg.select("#svg2deaths")
+        .text("There were "+deathsTotal+" deaths.")
+        .attr("x", width-50)
+        .attr("y", "150")
+        .attr("text-anchor", "end")
+        .style("font-size", "12pt")
+        .style("fill", "#992510");
+      svg.select("#svg2conflictgroups")
+        .text("Groups involved in conflicts")
+        .attr("x", width-50)
+        .attr("y", "200")
+        .attr("text-anchor", "end")
+        .style("font-size", "12pt");
+
+      whovswhoConflict.selectAll("text").remove()
 
 
-                    }
-                  }
-                }
+      if (conflictByYear[0]===undefined){
+        return
+      }
+      else{
+        count=1
+        conflictByYear[0]["values"].forEach(function(d){
+          whovswhoConflict.append("text")
+            .text(d["key"] +": " + d["values"]["deaths"])
+            .attr("x", "450")
+            .attr("y", count*12)
+            .style("font-size", "10pt")
+            .style("fill", "#992510")
+            .attr("text-anchor", "end");
+          count+=1
+        })
+
+      }
+    }
+    else{
+      svg.select("#svg2country")
+        .text(selectedCountry[0]["name"])
+        .attr("x", width-50)
+        .attr("y", "50")
+        .attr("text-anchor", "end")
+        .style("font-size", "36pt");
+      svg.select("#svg2year")
+        .text("In "+year+",")
+        .attr("x", width-50)
+        .attr("y", "100")
+        .attr("text-anchor", "end")
+        .style("font-size", "12pt");
+      svg.select("#svg2deaths")
+        .text("There were 0 deaths.")
+        .attr("x", width-50)
+        .attr("y", "150")
+        .attr("text-anchor", "end")
+        .style("font-size", "12pt")
+        .style("fill", "#992510");
+      svg.select("#svg2conflictgroups")
+        .text("There are no groups involved. ")
+        .attr("x", width-50)
+        .attr("y", "200")
+        .attr("text-anchor", "end")
+        .style("font-size", "12pt");
+      whovswhoConflict.selectAll("text").remove()
+      svg2.selectAll("path").remove()
+
+    }
+
+
+
+
+    function loopOfDeath(conflictByYear){
+
+      var deathsTotal=0;
+      if (conflictByYear[0]===undefined){
+        return 0
+      }
+      else{
+        conflictByYear[0]["values"].forEach(function(d){
+        deathsTotal+=d["values"]["deaths"]
+        })
+      }
+
+      return deathsTotal
+    };
+
+
+
+
+      };
+
+
+      function conflictLineGraph(conflictByCountry){
+        conflictByCountry=yValues(conflictByCountry)
+        function yValues(conflictByCountry){
+          var tempNum=0;
+          conflictByCountry[0]["values"].forEach(function(d){
+            d["values"].forEach(function(x){
+              tempNum+=x["values"]["deaths"]
             })
-//            console.log(whovswho)
+            d["deathsByYear"]=tempNum
+          })
+          return conflictByCountry
+        }
+        console.log(conflictByCountry)
 
+        svg2.selectAll("path").remove()
+        d3.select("#svg2")
+          .style("border", "solid #3A506B 2px");
 
-            svg2.select("#svg2country")
-              .text(d.name)
-              .attr("x", "50%")
-              .attr("y", "50")
-              .style("font-size", "36pt");
-            svg2.select("#svg2year")
-              .text("In "+year+",")
-              .attr("x", "50%")
-              .attr("y", "100")
-              .style("font-size", "12pt");
-            svg2.select("#svg2deaths")
-              .text("There were "+deathsPerYear+" deaths.")
-              .attr("x", "50%")
-              .attr("y", "150")
-              .style("font-size", "12pt")
-              .style("fill", "#992510");
-            // svg2.select("#svg2conflictgroups")
-            //   .text("Groups involved in conflicts")
-            //   .attr("x", "50%")
-            //   .attr("y", "150")
-            //   .style("font-size", "12pt");
+        var x = d3.time.scale().range([0, width2]);
+        var y = d3.scale.linear().range([height2, 0]);
 
-            for (var key in whovswho){
-              console.log(key)
-              whovswhoConflict.append("text")
-                .text(key + whovswho[key])
-                .style("font-size", "12pt")
-                .style("fill", "#992510")
-            }
+        x.domain(d3.extent(conflictByCountry[0]["values"], function(d) { return d["key"]; }));
+        y.domain([0, d3.max(conflictByCountry[0]["values"], function(d) {return d["deathsByYear"]; })]);
+
+        // Define the axes
+        var xAxis = d3.svg.axis().scale(x)
+            .orient("bottom").ticks(5);
+
+        var yAxis = d3.svg.axis().scale(y)
+            .orient("left").ticks(5);
+
+        // Define the line
+        var valueline = d3.svg.line()
+            .x(function(d) { return x(d["key"]); })
+            .y(function(d) { return y(d["deathsByYear"]); });
 
 
 
 
+          // Add the valueline path.
+        svg2.append("path")
+            .attr("class", "line")
+            .attr("d", valueline(conflictByCountry[0]["values"]));
 
-            //
-            // whovswhoMax=d3.max(d3.values(whovswho))
-            //
-            // var whovswhoScale = d3.scaleBand().domain(loop()).range([0,500]).padding(0.5);
-            // var height=500
-            // var conflictScale = d3.scaleLinear().domain([0, whovswhoMax]).range([height,0]);
-            // if (whovswho!=[]){
-            //   perpGraph.append("rect")
-            //   .attr("x", whovswhoScale(key))
-            //   .attr("y", conflictScale(whovswho[key]))
-            //   .attr("width", whovswhoScale.bandwidth())
-            //   .attr("height", height-conflictScale(hotelTypeArray[key]))
-            //   .attr("transform", "translate(100,50)")
-            //   .style("fill", colorScale(key))
-            // }
+        // Add the X Axis
+        svg2.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
+
+        // Add the Y Axis
+        svg2.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
 
 
 
 
 
 
-          }
-      });
 
-  }
+
+
+      }
 
 
 
