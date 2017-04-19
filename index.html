@@ -457,7 +457,7 @@ function parseLine(row){
 
 
     if (conflictByCountry[0]!==undefined){
-      conflictLineGraph(conflictByCountry)
+      conflictLineGraph(conflictByCountry,exportsByCountry)
       var conflictByYear=conflictByCountry[0]["values"].filter(function(d){
         return d["key"]===year
 
@@ -577,13 +577,16 @@ function parseLine(row){
       };
 
 
-      function conflictLineGraph(conflictByCountry){
+      function conflictLineGraph(conflictByCountry,exportsByCountry){
+      console.log(conflictByCountry)
+
         conflictByCountry=yValues(conflictByCountry)
         function yValues(conflictByCountry){
 
           conflictByCountry[0]["values"].forEach(function(d){
             var tempNum=0;
             d["values"].forEach(function(x){
+
               tempNum+=x["values"]["deaths"]
             })
             d["deathsByYear"]=tempNum
@@ -592,12 +595,14 @@ function parseLine(row){
           return conflictByCountry
         }
 
+
+
         svg2.selectAll("g").remove()
         svg2.selectAll("path").remove()
         d3.select("#svg2")
           .style("border", "solid #3A506B 2px");
 
-        var x = d3.time.scale().range([0, width2]);
+        var x = d3.scale.linear().range([0, width2]);
         var y = d3.scale.linear().range([height2, 0]);
 
         x.domain(d3.extent(conflictByCountry[0]["values"], function(d) { return d["key"]; }));
@@ -605,13 +610,16 @@ function parseLine(row){
 
         // Define the axes
         var xAxis = d3.svg.axis().scale(x)
-            .orient("bottom").ticks(5);
+            .orient("bottom").ticks(10);
 
         var yAxis = d3.svg.axis().scale(y)
             .orient("left").ticks(5);
 
         // Define the line
         var valueline = d3.svg.line()
+            .x(function(d) { return x(d["key"]); })
+            .y(function(d) { return y(d["deathsByYear"]); });
+        var weaponsline = d3.svg.line()
             .x(function(d) { return x(d["key"]); })
             .y(function(d) { return y(d["deathsByYear"]); });
 
