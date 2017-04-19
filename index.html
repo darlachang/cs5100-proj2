@@ -80,9 +80,9 @@ text{
   focused;
 
   var
-  margin = {top: 20, right: 100, bottom: 30, left: 100},
+  margin = {top: 50, right: 100, bottom: 30, left: 100},
   width2=1000-margin.left-margin.right,
-  height2=220-margin.top-margin.bottom,
+  height2=300-margin.top-margin.bottom,
   padding=50;
 
   //Setting projection
@@ -137,6 +137,10 @@ svg2=d3.select("body").append("svg")
 .append("g")
        .attr("transform",
              "translate(" + margin.left + "," + margin.top + ")");
+
+svg2.append("text")
+    .attr("id","svg2countryname")
+
 
 
 function parseLine(row){
@@ -578,7 +582,15 @@ function parseLine(row){
 
 
       function conflictLineGraph(conflictByCountry,exportsByCountry){
-      console.log(conflictByCountry)
+
+      svg2.select("#svg2countryname")
+        .text(conflictByCountry[0]["key"]+"'s Conflicts Per Year")
+        .attr("x", width2)
+        .attr("y", "0")
+        .attr("text-anchor", "end")
+        .style("font-size", "32pt")
+        .style("fill", "#3A506B");
+
 
         conflictByCountry=yValues(conflictByCountry)
         function yValues(conflictByCountry){
@@ -594,7 +606,6 @@ function parseLine(row){
 
           return conflictByCountry
         }
-
 
 
         svg2.selectAll("g").remove()
