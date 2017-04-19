@@ -551,8 +551,10 @@ function parseLine(row){
       whovswhoConflict.selectAll("text").remove()
 
       svg2.selectAll("path").remove()
-
+      svg2.selectAll("text").remove()
       svg2.selectAll("g").remove()
+      d3.select("#svg2")
+        .style("border", "solid #3A506B 0px");
 
 
     }
@@ -583,7 +585,7 @@ function parseLine(row){
 
       function conflictLineGraph(conflictByCountry,exportsByCountry){
 
-      svg2.select("#svg2countryname")
+      svg2.append("text")
         .text(conflictByCountry[0]["key"]+"'s Conflicts Per Year")
         .attr("x", width2)
         .attr("y", "0")
