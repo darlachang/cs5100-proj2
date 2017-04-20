@@ -429,6 +429,7 @@ function parseLine(row){
   var deathArray=[];
   var deaths;
   function countryDesc(year, selectCountry,data,nestedArms){
+    console.log(data)
 
     year=String(year)
     var deathsPerYear=0;
@@ -446,7 +447,7 @@ function parseLine(row){
     var exportsByCountry=nestedArms.filter(function(arms){
       return arms["key"]===selectedCountry[0]["name"]
     })
-    console.log(exportsByCountry)
+
 
     if (exportsByCountry[0]!==undefined){
       var exportsByYear=exportsByCountry[0]["values"].filter(function(d){
@@ -456,11 +457,13 @@ function parseLine(row){
 
       }
 
+
+
+
+
+
+    if (conflictByCountry[0]!==undefined&& exportsByCountry[0]!==undefined){
       console.log(exportsByYear)
-
-
-
-    if (conflictByCountry[0]!==undefined){
       conflictLineGraph(conflictByCountry,exportsByCountry)
       var conflictByYear=conflictByCountry[0]["values"].filter(function(d){
         return d["key"]===year
@@ -493,35 +496,39 @@ function parseLine(row){
         .attr("y", "200")
         .attr("text-anchor", "end")
         .style("font-size", "12pt");
-      svg.select("#svgExports")
-        .text(exportsByYear[0]["key"]+":"+exportsByYear[0]["values"]["total_value"])
-        .attr("x", width-50)
-        .attr("y", "250")
-        .attr("text-anchor", "end")
-        .style("font-size", "12pt")
-
 
       whovswhoConflict.selectAll("text").remove()
+        if (conflictByYear[0]===undefined){
+          return
+        }
+        else{
+          count=1
+          conflictByYear[0]["values"].forEach(function(d){
+            whovswhoConflict.append("text")
+              .text(d["key"] +": " + d["values"]["deaths"])
+              .attr("x", "450")
+              .attr("y", count*12)
+              .style("font-size", "10pt")
+              .style("fill", "#992510")
+              .attr("text-anchor", "end");
+            count+=1
+          })
 
-
-      if (conflictByYear[0]===undefined){
-        return
+        }
+      if (!exportsByYear[0]["key"]==undefined){
+        svg.select("#svgExports")
+          .text(exportsByYear[0]["key"]+":"+exportsByYear[0]["values"]["total_value"])
+          .attr("x", width-50)
+          .attr("y", "250")
+          .attr("text-anchor", "end")
+          .style("font-size", "12pt")
       }
       else{
-        count=1
-        conflictByYear[0]["values"].forEach(function(d){
-          whovswhoConflict.append("text")
-            .text(d["key"] +": " + d["values"]["deaths"])
-            .attr("x", "450")
-            .attr("y", count*12)
-            .style("font-size", "10pt")
-            .style("fill", "#992510")
-            .attr("text-anchor", "end");
-          count+=1
-        })
+        return
+      }
+
 
       }
-    }
     else{
       svg.select("#svg2country")
         .text(selectedCountry[0]["name"])
@@ -584,7 +591,9 @@ function parseLine(row){
 
 
       function conflictLineGraph(conflictByCountry,exportsByCountry){
+        console.log(conflictByCountry)
 
+      svg2.selectAll("text").remove()
       svg2.append("text")
         .text(conflictByCountry[0]["key"]+"'s Conflicts Per Year")
         .attr("x", width2)
@@ -615,7 +624,7 @@ function parseLine(row){
         d3.select("#svg2")
           .style("border", "solid #3A506B 2px");
 
-        var x = d3.scale.linear().range([0, width2]);
+        var x = d3.time.scale().range([0, width2]);
         var y = d3.scale.linear().range([height2, 0]);
 
         x.domain(d3.extent(conflictByCountry[0]["values"], function(d) { return d["key"]; }));
@@ -623,7 +632,7 @@ function parseLine(row){
 
         // Define the axes
         var xAxis = d3.svg.axis().scale(x)
-            .orient("bottom").ticks(10);
+            .orient("bottom").ticks(10).tickFormat(d3.time.format("%Y"));
 
         var yAxis = d3.svg.axis().scale(y)
             .orient("left").ticks(5);
