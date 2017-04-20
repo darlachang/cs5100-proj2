@@ -21,7 +21,7 @@ body {
   stroke-width: 0.55px;
 }
 .land:hover {
-  fill:#87BCDE;
+  fill:#3A506B;
 }
 .focused {
   fill: #87BCDE;
@@ -525,6 +525,7 @@ function parseLine(row){
           .style("font-size", "12pt")
       }
       else{
+        svg2.selectAll("text").remove()
         return
       }
 
@@ -591,7 +592,19 @@ function parseLine(row){
       };
 
       function conflictBarGraph(conflictByCountry){
+
+        svg2.selectAll("text").remove()
+        svg2.selectAll("g").remove()
         svg2.selectAll("rect").remove()
+
+
+        svg2.append("text")
+       .text(conflictByCountry[0]["key"]+"'s Conflicts Per Year")
+       .attr("x", width2)
+       .attr("y", "0")
+       .attr("text-anchor", "end")
+       .style("font-size", "32pt")
+       .style("fill", "#3A506B");
 
         conflictByCountry=yValues(conflictByCountry)
         function yValues(conflictByCountry){
