@@ -28,11 +28,12 @@ body {
 }
 select {
   position: absolute;
-  top: 20px;
-  left: 580px;
+  top: 55px;
+  left: 60px;
   border: solid #ccc 1px;
   padding: 3px;
   box-shadow: inset 1px 1px 2px #ddd8dc;
+  width: 200px;
 }
 .countryTooltip {
   position: absolute;
@@ -63,6 +64,11 @@ text{
   fill: #3A506B;
   font-family: "arial";
 }
+
+#time_trend { 
+     position: absolute; 
+     left: 60px; 
+     top: 0px;}
 </style>
 <body>
 <!--- create time slider -->
@@ -71,7 +77,7 @@ text{
              style="display: inline-block; text-align: right; color: white">
              period: <span id="year-value"></span>
     </label>
-    <input type="range" min="1989" max="2015" id="year" style = "width: 300px; height: 0px">
+    <input type="range" min="1989" max="2015" id="year" style = "width: 150px; height: 0px;">
 </p>
   <script>
   var width = 1200,
@@ -87,9 +93,9 @@ text{
 
   //Setting projection
   var projection = d3.geo.orthographic()
-  .scale(245)
+  .scale(350)
   .rotate([0, 0])
-  .translate([width / 2, height / 2])
+  .translate([width / 2 - 100, height / 2])
   .clipAngle(90);
   var path = d3.geo.path()
   .projection(projection);
@@ -103,7 +109,7 @@ text{
   svg.append("text")
   .attr("id", "svginstr")
   .text("Select a country...")
-  .attr("x", "50")
+  .attr("x", "450")
   .attr("y", "50")
   .style("fill", "#3A506B")
   .style("font-size", "36pt")
