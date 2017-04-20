@@ -6,6 +6,7 @@
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 <script src="http://d3js.org/queue.v1.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
 </head>
 <style type="text/css">
 
@@ -61,8 +62,8 @@ path {
     shape-rendering: crispEdges;
 }
 text{
-  fill: #3A506B;
-  font-family: "arial";
+  fill: white;
+  font-family: 'Raleway', sans-serif;
 }
 
 #time_trend { 
@@ -86,9 +87,9 @@ text{
   focused;
 
   var
-  margin = {top: 50, right: 100, bottom: 50, left: 100},
+  margin = {top: 50, right: 100, bottom: 30, left: 100},
   width2=1000-margin.left-margin.right,
-  height2=350-margin.top-margin.bottom,
+  height2=300-margin.top-margin.bottom,
   padding=50;
 
   //Setting projection
@@ -125,7 +126,15 @@ svg.append("text")
 svg.append("text")
 .attr("id","svg2conflictgroups")
 svg.append("text")
+.attr("id","svgExports1")
+svg.append("text")
+.attr("id","svgExports2")
+svg.append("text")
+.attr("id","svgExports3")
+
+svg.append("text")
 .attr("id","svgExports")
+
 whovswhoConflict=svg.append("svg")
 .attr("id","whovswhoConflict")
 .attr("width", 500)
@@ -176,11 +185,6 @@ function parseLine(row){
    var cnt = 0;
    var myIntervId;
    function drawCircle(circleData){
-    // console.log("india",projection([-78.9629, 20.5937])); //india
-    // console.log("algeria",projection([1.6596, 28.0339])); //algeria
-    // console.log("france",projection([2.2137, 46.2276])); //france
-    // console.log("nicaragua", projection([-85.2072, 12.8654])); //india
-    // console.log("fiji", projection([178.0650, -17.7134])); //fiji
 
      circleData.forEach(function(din){
 
@@ -195,7 +199,6 @@ function parseLine(row){
           .attr("r", function() {
             if (din.high_est>0){
                 return (countScale(Math.log(din.high_est))*0.1)
-                 //return (countScale(din.high_est)*10)
                 }
                 else {
                   return 0
@@ -304,10 +307,6 @@ function parseLine(row){
     .key(function (d) { return d.year; })
     .entries(conflict);
 
-    //console.log(conflict);
-    //console.log(nestedConflict);
-    //console.log(nestedConflict[2015-1989].key+"initial");
-    //console.log(nestedConflict[2015-1989].values[0].latitude);
 
     //Drawing countries on the globe
     var world = svg.selectAll("path.land")
@@ -497,7 +496,30 @@ function parseLine(row){
         .attr("x", width-50)
         .attr("y", "200")
         .attr("text-anchor", "end")
-        .style("font-size", "12pt");
+        .style("font-size", "12pt")
+        
+      svg.select("#svgExports1")
+        .text("THE UNITED STATES EXPORTED:")
+         .attr("x", width-50)
+        .attr("y", "275")
+        .attr("text-anchor", "end")
+        .style("font-size", "15pt")
+        .attr("color", "white")
+      svg.select("#svgExports2")
+        .text("$" +exportsByYear[0]["values"]["total_value"])
+        .attr("x", width-50)
+        .attr("y", "325")
+        .attr("text-anchor", "end")
+        .style("font-size", "30pt")
+        .attr("color", "white")
+      svg.select("#svgExports3")
+        .text("IN SMALL ARMS" )
+        .attr("x", width-50)
+        .attr("y", "375")
+        .attr("text-anchor", "end")
+        .style("font-size", "15pt")
+        .attr("color", "white")
+
 
       whovswhoConflict.selectAll("text").remove()
         if (conflictByYear[0]===undefined){
