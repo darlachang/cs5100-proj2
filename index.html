@@ -161,10 +161,10 @@ function parseLine(row){
   var countryTooltip = d3.select("body").append("div").attr("class", "countryTooltip"),
   countryList = d3.select("body").append("select").attr("name", "countries");
   queue()
-  .defer(d3.json, "world-110m.json")
-  .defer(d3.tsv, "world-110m-country-names.tsv")
-  .defer(d3.csv, "conflictdata.csv")
-  .defer(d3.csv,"armsdata.csv", parseLine)
+  .defer(d3.json, "world-110m.json?_=7")
+  .defer(d3.tsv, "world-110m-country-names.tsv?_=7")
+  .defer(d3.csv, "conflictdata.csv?_=7")
+  .defer(d3.csv,"armsdata.csv?_=7", parseLine)
   .await(ready);
 
    var cnt = 0;
@@ -517,7 +517,6 @@ function parseLine(row){
         }
 
       if (exportsByCountry[0]!==undefined && exportsByYear[0]["key"]!==undefined){
-
         svg.select("#svgExports")
           .text(exportsByYear[0]["key"]+":"+exportsByYear[0]["values"]["total_value"])
           .attr("x", width-50)
@@ -526,7 +525,6 @@ function parseLine(row){
           .style("font-size", "12pt")
       }
       else{
-        svg.select("#svgExports").remove()
         return
       }
 
@@ -560,6 +558,9 @@ function parseLine(row){
         .style("font-size", "12pt");
       whovswhoConflict.selectAll("text").remove()
 
+      svg.select("#svgExports")
+        .text("")
+
       svg2.selectAll("rect").remove()
       svg2.selectAll("text").remove()
       svg2.selectAll("g").remove()
@@ -587,95 +588,7 @@ function parseLine(row){
       return deathsTotal
     };
 
-
-
-
       };
-
-
-      // function conflictLineGraph(conflictByCountry){
-      //
-      //
-      // svg2.selectAll("text").remove()
-      // svg2.append("text")
-      //   .text(conflictByCountry[0]["key"]+"'s Conflicts Per Year")
-      //   .attr("x", width2)
-      //   .attr("y", "0")
-      //   .attr("text-anchor", "end")
-      //   .style("font-size", "32pt")
-      //   .style("fill", "#3A506B");
-      //
-      //
-      //   conflictByCountry=yValues(conflictByCountry)
-      //   function yValues(conflictByCountry){
-      //
-      //     conflictByCountry[0]["values"].forEach(function(d){
-      //       var tempNum=0;
-      //       d["values"].forEach(function(x){
-      //
-      //         tempNum+=x["values"]["deaths"]
-      //       })
-      //       d["deathsByYear"]=tempNum
-      //     })
-      //
-      //     return conflictByCountry
-      //   }
-      //
-      //
-      //   svg2.selectAll("g").remove()
-      //   svg2.selectAll("path").remove()
-      //   d3.select("#svg2")
-      //     .style("border", "solid #3A506B 2px");
-      //
-      //   var x = d3.time.scale().range([0, width2]);
-      //   var y = d3.scale.linear().range([height2, 0]);
-      //
-      //   x.domain(d3.extent(conflictByCountry[0]["values"], function(d) { return d["key"]; }));
-      //   y.domain([0, d3.max(conflictByCountry[0]["values"], function(d) {return d["deathsByYear"]; })]);
-      //
-      //   // Define the axes
-      //   var xAxis = d3.svg.axis().scale(x)
-      //       .orient("bottom").ticks(10).tickFormat(d3.time.format("%Y"));
-      //
-      //   var yAxis = d3.svg.axis().scale(y)
-      //       .orient("left").ticks(5);
-      //
-      //   // Define the line
-      //   var valueline = d3.svg.line()
-      //       .x(function(d) { return x(d["key"]); })
-      //       .y(function(d) { return y(d["deathsByYear"]); });
-      //   var weaponsline = d3.svg.line()
-      //       .x(function(d) { return x(d["key"]); })
-      //       .y(function(d) { return y(d["deathsByYear"]); });
-      //
-      //
-      //
-      //
-      //     // Add the valueline path.
-      //   svg2.append("path")
-      //       .attr("class", "line")
-      //       .attr("d", valueline(conflictByCountry[0]["values"]));
-      //
-      //   // Add the X Axis
-      //   svg2.append("g")
-      //       .attr("class", "x axis")
-      //       .attr("transform", "translate(0," + height2 + ")")
-      //       .call(xAxis);
-      //
-      //   // Add the Y Axis
-      //   svg2.append("g")
-      //       .attr("class", "y axis")
-      //       .call(yAxis)
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      // }
 
       function conflictBarGraph(conflictByCountry){
         svg2.selectAll("rect").remove()
