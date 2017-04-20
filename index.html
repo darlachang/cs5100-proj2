@@ -80,9 +80,9 @@ text{
   focused;
 
   var
-  margin = {top: 50, right: 100, bottom: 30, left: 100},
+  margin = {top: 50, right: 100, bottom: 50, left: 100},
   width2=1000-margin.left-margin.right,
-  height2=300-margin.top-margin.bottom,
+  height2=350-margin.top-margin.bottom,
   padding=50;
 
   //Setting projection
@@ -462,9 +462,9 @@ function parseLine(row){
 
 
 
-    if (conflictByCountry[0]!==undefined&& exportsByCountry[0]!==undefined){
-      console.log(exportsByYear)
-      conflictLineGraph(conflictByCountry,exportsByCountry)
+    if (conflictByCountry[0]!==undefined){
+
+      conflictBarGraph(conflictByCountry)
       var conflictByYear=conflictByCountry[0]["values"].filter(function(d){
         return d["key"]===year
 
@@ -515,20 +515,23 @@ function parseLine(row){
           })
 
         }
-      if (!exportsByYear[0]["key"]==undefined){
+
+      if (exportsByCountry[0]!==undefined && exportsByYear[0]["key"]!==undefined){
+
         svg.select("#svgExports")
           .text(exportsByYear[0]["key"]+":"+exportsByYear[0]["values"]["total_value"])
           .attr("x", width-50)
-          .attr("y", "250")
+          .attr("y", "500")
           .attr("text-anchor", "end")
           .style("font-size", "12pt")
       }
       else{
+        svg.select("#svgExports").remove()
         return
       }
 
 
-      }
+    }
     else{
       svg.select("#svg2country")
         .text(selectedCountry[0]["name"])
@@ -557,7 +560,7 @@ function parseLine(row){
         .style("font-size", "12pt");
       whovswhoConflict.selectAll("text").remove()
 
-      svg2.selectAll("path").remove()
+      svg2.selectAll("rect").remove()
       svg2.selectAll("text").remove()
       svg2.selectAll("g").remove()
       d3.select("#svg2")
@@ -590,18 +593,92 @@ function parseLine(row){
       };
 
 
-      function conflictLineGraph(conflictByCountry,exportsByCountry){
-        console.log(conflictByCountry)
+      // function conflictLineGraph(conflictByCountry){
+      //
+      //
+      // svg2.selectAll("text").remove()
+      // svg2.append("text")
+      //   .text(conflictByCountry[0]["key"]+"'s Conflicts Per Year")
+      //   .attr("x", width2)
+      //   .attr("y", "0")
+      //   .attr("text-anchor", "end")
+      //   .style("font-size", "32pt")
+      //   .style("fill", "#3A506B");
+      //
+      //
+      //   conflictByCountry=yValues(conflictByCountry)
+      //   function yValues(conflictByCountry){
+      //
+      //     conflictByCountry[0]["values"].forEach(function(d){
+      //       var tempNum=0;
+      //       d["values"].forEach(function(x){
+      //
+      //         tempNum+=x["values"]["deaths"]
+      //       })
+      //       d["deathsByYear"]=tempNum
+      //     })
+      //
+      //     return conflictByCountry
+      //   }
+      //
+      //
+      //   svg2.selectAll("g").remove()
+      //   svg2.selectAll("path").remove()
+      //   d3.select("#svg2")
+      //     .style("border", "solid #3A506B 2px");
+      //
+      //   var x = d3.time.scale().range([0, width2]);
+      //   var y = d3.scale.linear().range([height2, 0]);
+      //
+      //   x.domain(d3.extent(conflictByCountry[0]["values"], function(d) { return d["key"]; }));
+      //   y.domain([0, d3.max(conflictByCountry[0]["values"], function(d) {return d["deathsByYear"]; })]);
+      //
+      //   // Define the axes
+      //   var xAxis = d3.svg.axis().scale(x)
+      //       .orient("bottom").ticks(10).tickFormat(d3.time.format("%Y"));
+      //
+      //   var yAxis = d3.svg.axis().scale(y)
+      //       .orient("left").ticks(5);
+      //
+      //   // Define the line
+      //   var valueline = d3.svg.line()
+      //       .x(function(d) { return x(d["key"]); })
+      //       .y(function(d) { return y(d["deathsByYear"]); });
+      //   var weaponsline = d3.svg.line()
+      //       .x(function(d) { return x(d["key"]); })
+      //       .y(function(d) { return y(d["deathsByYear"]); });
+      //
+      //
+      //
+      //
+      //     // Add the valueline path.
+      //   svg2.append("path")
+      //       .attr("class", "line")
+      //       .attr("d", valueline(conflictByCountry[0]["values"]));
+      //
+      //   // Add the X Axis
+      //   svg2.append("g")
+      //       .attr("class", "x axis")
+      //       .attr("transform", "translate(0," + height2 + ")")
+      //       .call(xAxis);
+      //
+      //   // Add the Y Axis
+      //   svg2.append("g")
+      //       .attr("class", "y axis")
+      //       .call(yAxis)
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      // }
 
-      svg2.selectAll("text").remove()
-      svg2.append("text")
-        .text(conflictByCountry[0]["key"]+"'s Conflicts Per Year")
-        .attr("x", width2)
-        .attr("y", "0")
-        .attr("text-anchor", "end")
-        .style("font-size", "32pt")
-        .style("fill", "#3A506B");
-
+      function conflictBarGraph(conflictByCountry){
+        svg2.selectAll("rect").remove()
 
         conflictByCountry=yValues(conflictByCountry)
         function yValues(conflictByCountry){
@@ -618,63 +695,56 @@ function parseLine(row){
           return conflictByCountry
         }
 
+        var x = d3.scale.ordinal().rangeRoundBands([0, width2], .05);
 
-        svg2.selectAll("g").remove()
-        svg2.selectAll("path").remove()
-        d3.select("#svg2")
-          .style("border", "solid #3A506B 2px");
 
-        var x = d3.time.scale().range([0, width2]);
         var y = d3.scale.linear().range([height2, 0]);
 
-        x.domain(d3.extent(conflictByCountry[0]["values"], function(d) { return d["key"]; }));
-        y.domain([0, d3.max(conflictByCountry[0]["values"], function(d) {return d["deathsByYear"]; })]);
+        var xAxis = d3.svg.axis().scale(x).orient("bottom").ticks(10);
 
-        // Define the axes
-        var xAxis = d3.svg.axis().scale(x)
-            .orient("bottom").ticks(10).tickFormat(d3.time.format("%Y"));
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left")
+            .ticks(10);
 
-        var yAxis = d3.svg.axis().scale(y)
-            .orient("left").ticks(5);
-
-        // Define the line
-        var valueline = d3.svg.line()
-            .x(function(d) { return x(d["key"]); })
-            .y(function(d) { return y(d["deathsByYear"]); });
-        var weaponsline = d3.svg.line()
-            .x(function(d) { return x(d["key"]); })
-            .y(function(d) { return y(d["deathsByYear"]); });
+        x.domain(conflictByCountry[0]["values"].map(function(d) { return d["key"] }));
+        y.domain([0, d3.max(conflictByCountry[0]["values"], function(d) { return d["deathsByYear"]; })]);
 
 
+      d3.select("#svg2")
+        .style("border", "solid #3A506B 2px");
+
+      svg2.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height2 + ")")
+        .call(xAxis)
+      .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", "-.55em")
+        .attr("transform", "rotate(-90)" );
 
 
-          // Add the valueline path.
-        svg2.append("path")
-            .attr("class", "line")
-            .attr("d", valueline(conflictByCountry[0]["values"]));
-
-        // Add the X Axis
-        svg2.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + height2 + ")")
-            .call(xAxis);
-
-        // Add the Y Axis
-        svg2.append("g")
-            .attr("class", "y axis")
-            .call(yAxis)
+      svg2.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+        .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("deaths");
 
 
-
-
-
-
-
-
-
-      }
-
-
+      svg2.selectAll("bar")
+          .data(conflictByCountry[0]["values"])
+          .enter().append("rect")
+          .style("fill", "steelblue")
+          .attr("x", function(d){ return x(d["key"]); } )
+          .attr("width", x.rangeBand())
+          .attr("y", function(d) { return y(d["deathsByYear"]); })
+          .attr("height", function(d) { return height2 - y(d["deathsByYear"]); });
+    };
 
 
 
