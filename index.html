@@ -69,7 +69,8 @@ text{
 #time_trend { 
      position: absolute; 
      left: 60px; 
-     top: 0px;}
+     top: 0px;
+}
 </style>
 <body>
 <!--- create time slider -->
@@ -81,15 +82,15 @@ text{
     <input type="range" min="1989" max="2015" id="year" style = "width: 150px; height: 0px;">
 </p>
   <script>
-  var width = 1200,
+  var width = 1400,
   height = 1000,
   sens = 0.25,
   focused;
 
   var
   margin = {top: 50, right: 100, bottom: 30, left: 100},
-  width2=1000-margin.left-margin.right,
-  height2=300-margin.top-margin.bottom,
+  width2=width-200-margin.left-margin.right,
+  height2=height-700-margin.top-margin.bottom,
   padding=50;
 
   //Setting projection
@@ -131,7 +132,6 @@ svg.append("text")
 .attr("id","svgExports2")
 svg.append("text")
 .attr("id","svgExports3")
-
 svg.append("text")
 .attr("id","svgExports")
 
@@ -139,7 +139,7 @@ whovswhoConflict=svg.append("svg")
 .attr("id","whovswhoConflict")
 .attr("width", 500)
 .attr("height", 600)
-.attr("x", "700")
+.attr("x", width - 500) //700
 .attr("y", 220);
 
 svg2=d3.select("body").append("svg")
@@ -497,7 +497,7 @@ function parseLine(row){
         .attr("y", "200")
         .attr("text-anchor", "end")
         .style("font-size", "12pt")
-        
+
       svg.select("#svgExports1")
         .text("THE UNITED STATES EXPORTED:")
          .attr("x", width-50)
