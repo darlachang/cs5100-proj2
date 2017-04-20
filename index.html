@@ -435,7 +435,7 @@ function parseLine(row){
   var deathArray=[];
   var deaths;
   function countryDesc(year, selectCountry,data,nestedArms){
-    console.log(data)
+  
 
     year=String(year)
     var deathsPerYear=0;
@@ -462,10 +462,6 @@ function parseLine(row){
         })
 
       }
-
-
-
-
 
 
     if (conflictByCountry[0]!==undefined){
@@ -522,7 +518,9 @@ function parseLine(row){
 
         }
 
-      if (exportsByCountry[0]!==undefined && exportsByYear[0]["key"]!==undefined){
+
+    if (exportsByCountry[0]!==undefined && exportsByYear[0]!==undefined){
+
         svg.select("#svgExports")
           .text(exportsByYear[0]["key"]+":"+exportsByYear[0]["values"]["total_value"])
           .attr("x", width-50)
@@ -530,6 +528,7 @@ function parseLine(row){
           .attr("text-anchor", "end")
           .style("font-size", "12pt")
       }
+
       else{
         svg2.selectAll("text").remove()
         return
@@ -567,7 +566,6 @@ function parseLine(row){
 
       svg.select("#svgExports")
         .text("")
-
       svg2.selectAll("rect").remove()
       svg2.selectAll("text").remove()
       svg2.selectAll("g").remove()
@@ -591,7 +589,6 @@ function parseLine(row){
         deathsTotal+=d["values"]["deaths"]
         })
       }
-
       return deathsTotal
     };
 
@@ -605,7 +602,7 @@ function parseLine(row){
 
 
         svg2.append("text")
-       .text(conflictByCountry[0]["key"]+"'s Conflicts Per Year")
+       .text(conflictByCountry[0]["key"]+"'s Deaths from Conflicts")
        .attr("x", width2)
        .attr("y", "0")
        .attr("text-anchor", "end")
