@@ -88,7 +88,7 @@ text{
   focused;
 
   var
-  margin = {top: 50, right: 100, bottom: 30, left: 100},
+  margin = {top: 50, right: 100, bottom: 55, left: 100},
   width2=width-200-margin.left-margin.right,
   height2=height-700-margin.top-margin.bottom,
   padding=50;
@@ -526,6 +526,7 @@ function parseLine(row){
 
 
       console.log(exportsByYear)
+      totalArms=0
       count=1
       exportsByYear[0]["values"].forEach(function(d){
         exportsSVG.append("text")
@@ -535,8 +536,13 @@ function parseLine(row){
           .attr("text-anchor", "end")
           .style("font-size", "30pt")
           .attr("color", "white")
+
+        totalArms+=d["values"]["total_value"]
         count+=1
         })
+
+      
+
 
 
 
