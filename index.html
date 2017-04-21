@@ -66,9 +66,9 @@ text{
   font-family: 'Raleway', sans-serif;
 }
 
-#time_trend { 
-     position: absolute; 
-     left: 60px; 
+#time_trend {
+     position: absolute;
+     left: 60px;
      top: 0px;
 }
 </style>
@@ -274,6 +274,7 @@ function parseLine(row){
       nestedArms=d3.nest()
         .key(function(d){return d.Partner_Name;})
         .key(function(d){return d.Year;})
+        .key(function(d){return d.Weapons_Type})
         .rollup(function(leaves){return {"total_value":d3.sum(leaves,function(d){return parseFloat(d.Value);})}})
         .entries(arms);
 
@@ -434,8 +435,8 @@ function parseLine(row){
   var deathArray=[];
   var deaths;
   function countryDesc(year, selectCountry,data,nestedArms){
-  
 
+    console.log(nestedArms)
     year=String(year)
     var deathsPerYear=0;
     var whovswho=[];
@@ -461,6 +462,8 @@ function parseLine(row){
         })
 
       }
+
+
 
 
     if (conflictByCountry[0]!==undefined){
@@ -505,13 +508,7 @@ function parseLine(row){
         .attr("text-anchor", "end")
         .style("font-size", "15pt")
         .attr("color", "white")
-      svg.select("#svgExports2")
-        .text("$" +exportsByYear[0]["values"]["total_value"])
-        .attr("x", width-50)
-        .attr("y", "325")
-        .attr("text-anchor", "end")
-        .style("font-size", "30pt")
-        .attr("color", "white")
+
       svg.select("#svgExports3")
         .text("IN SMALL ARMS" )
         .attr("x", width-50)
@@ -519,6 +516,21 @@ function parseLine(row){
         .attr("text-anchor", "end")
         .style("font-size", "15pt")
         .attr("color", "white")
+
+
+      console.log(exportsByYear)
+      count=1
+      exportsByYear[0]["values"].forEach(function(d){
+        svg.select("#svgExports2")
+          .text("$" +d["key"]+d["values"]["total_value"])
+          .attr("x", width-50)
+          .attr("y", "400"+10*count)
+          .attr("text-anchor", "end")
+          .style("font-size", "30pt")
+          .attr("color", "white")
+        count+=1
+        })
+
 
 
       whovswhoConflict.selectAll("text").remove()
