@@ -75,6 +75,9 @@ text{
 </style>
 <body>
 <!--- create time slider -->
+
+
+
 <p id = "time_trend">
     <label for="year"
              style="display: inline-block; text-align: right; color: white">
@@ -93,6 +96,8 @@ text{
   width2=width-200-margin.left-margin.right,
   height2=height-700-margin.top-margin.bottom,
   padding=50;
+
+//globe adapted from KoGor's Earth Globe bl.ocks.org/KoGor/5994804
 
   //Setting projection
   var projection = d3.geo.orthographic()
@@ -629,7 +634,7 @@ function parseLine(row){
       d3.select("#svg2")
         .style("border", "solid #3A506B 0px");
       exportsSVG.selectAll("text").remove()
-      
+
 
 
     }
