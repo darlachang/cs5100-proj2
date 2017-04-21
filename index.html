@@ -135,6 +135,13 @@ svg.append("text")
 svg.append("text")
 .attr("id","svgExports")
 
+exportsSVG=svg.append("svg")
+.attr("id","exportsSVG")
+.attr("width", 500)
+.attr("height", 600)
+.attr("x", width - 500) //700
+.attr("y", 900);
+
 whovswhoConflict=svg.append("svg")
 .attr("id","whovswhoConflict")
 .attr("width", 500)
@@ -521,10 +528,10 @@ function parseLine(row){
       console.log(exportsByYear)
       count=1
       exportsByYear[0]["values"].forEach(function(d){
-        svg.select("#svgExports2")
+        exportsSVG.append("text")
           .text("$" +d["key"]+d["values"]["total_value"])
           .attr("x", width-50)
-          .attr("y", "400"+10*count)
+          .attr("y", "0"+count*10)
           .attr("text-anchor", "end")
           .style("font-size", "30pt")
           .attr("color", "white")
